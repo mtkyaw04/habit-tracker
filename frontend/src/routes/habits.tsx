@@ -21,7 +21,12 @@ function HabitsPage() {
   const [filter, setFilter] = useState<string>("All");
 
   const filtered = filter === "All" ? habits : habits.filter((h) => h.category === filter);
+  const WEEK_MAP = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+  function formatWeekDays(days?: number[]) {
+    if (!days?.length) return null;
+    return days.map((d) => WEEK_MAP[d]).join(", ");
+  }
   return (
     <AppShell>
       <div className="mb-6 flex items-end justify-between gap-4">

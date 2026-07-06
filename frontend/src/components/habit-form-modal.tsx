@@ -12,9 +12,20 @@ export type HabitFormValue = {
   description?: string;
   category: string;
   frequency: Frequency;
+  weekDays?: number[];
   reminder?: string;
   color?: Habit["color"];
 };
+
+const WEEK_DAYS = [
+  { label: "Sun", value: 0 },
+  { label: "Mon", value: 1 },
+  { label: "Tue", value: 2 },
+  { label: "Wed", value: 3 },
+  { label: "Thu", value: 4 },
+  { label: "Fri", value: 5 },
+  { label: "Sat", value: 6 },
+];
 
 export function HabitFormModal({
   open,
@@ -31,6 +42,7 @@ export function HabitFormModal({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [frequency, setFrequency] = useState<Frequency>("daily");
+  const [weekDays, setWeekDays] = useState<number[]>([]);
   const [reminder, setReminder] = useState("");
   const [color, setColor] = useState<Habit["color"]>("pink");
 
@@ -40,21 +52,38 @@ export function HabitFormModal({
       setDescription(initial?.description ?? "");
       setCategory(initial?.category ?? CATEGORIES[0]);
       setFrequency(initial?.frequency ?? "daily");
+      setWeekDays((initial as Habit & { weekDays?: number[] })?.weekDays ?? []);
       setReminder(initial?.reminder ?? "");
       setColor(initial?.color ?? "pink");
     }
   }, [open, initial]);
 
+  const toggleWeekDay = (day: number) => {
+    setWeekDays((prev) =>
+      prev.includes(day)
+        ? prev.filter((d) => d !== day)
+        : [...prev, day].sort((a, b) => a - b),
+    );
+  };
+
   const submit = () => {
     if (!name.trim()) return;
+
+    if (frequency === "weekly" && weekDays.length === 0) {
+      alert("Please select at least one day for a weekly habit.");
+      return;
+    }
+
     onSubmit({
       name: name.trim(),
       description: description.trim() || undefined,
       category,
       frequency,
+      weekDays: frequency === "weekly" ? weekDays : undefined,
       reminder: reminder || undefined,
       color,
     });
+
     onOpenChange(false);
   };
 
@@ -96,23 +125,55 @@ export function HabitFormModal({
             <div className="grid gap-2">
               <Label>Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="rounded-2xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="rounded-2xl">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
+
             <div className="grid gap-2">
               <Label>Frequency</Label>
               <Select value={frequency} onValueChange={(v) => setFrequency(v as Frequency)}>
-                <SelectTrigger className="rounded-2xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="rounded-2xl">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="daily">Daily</SelectItem>
                   <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {frequency === "weekly" && (
+              <div className="grid gap-2 sm:col-span-2">
+                <Label>Repeat on</Label>
+
+                <div className="flex flex-wrap gap-2">
+                  {WEEK_DAYS.map((day) => {
+                    const selected = weekDays.includes(day.value);
+
+                    return (
+                      <Button
+                        key={day.value}
+                        type="button"
+                        variant={selected ? "default" : "outline"}
+                        className="rounded-full px-4"
+                        onClick={() => toggleWeekDay(day.value)}
+                      >
+                        {day.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -145,10 +206,18 @@ export function HabitFormModal({
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-2xl">
+          <Button
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            className="rounded-2xl"
+          >
             Cancel
           </Button>
-          <Button onClick={submit} className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90">
+
+          <Button
+            onClick={submit}
+            className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
+          >
             Save
           </Button>
         </DialogFooter>
