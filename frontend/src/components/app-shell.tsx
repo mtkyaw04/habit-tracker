@@ -1,8 +1,10 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Home, ListChecks, Calendar, BarChart3, User, Sparkles } from "lucide-react";
+import { Home, ListChecks, Calendar, BarChart3, User, Sparkles, LogOut } from "lucide-react";
 import { type ReactNode, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useHabits } from "@/lib/habits-store";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner"; // Import Button component
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: Home },
@@ -14,7 +16,7 @@ const NAV = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, isAuthenticated } = useHabits();
+  const { profile, isAuthenticated, logout } = useHabits(); // Destructure logout
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,6 +58,19 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+
+        {/* Logout button*/}
+        <Button
+          variant="ghost"
+          onClick={() => {
+            logout();
+            toast("Logged out");
+            navigate({ to: "/login" });
+          }}
+          className="rounded-2xl text-destructive hover:bg-destructive/10"
+        >
+          <LogOut className="mr-1 h-4 w-4" /> Logout
+        </Button>
 
         <div className="mt-4 rounded-2xl bg-accent/50 p-4 shadow-soft">
           <div className="flex items-center gap-3">

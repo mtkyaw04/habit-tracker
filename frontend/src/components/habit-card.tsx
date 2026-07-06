@@ -1,4 +1,4 @@
-import { Check, Pencil, Trash2, Bell, Repeat } from "lucide-react";
+import { Check, Pencil, Trash2, Repeat } from "lucide-react";
 import { type Habit, todayKey, computeStreak } from "@/lib/habits-store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -70,11 +70,6 @@ export function HabitCard({
         <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1 font-semibold text-foreground/80">
           <Repeat className="h-3.5 w-3.5" /> {habit.frequency}
         </span>
-        {habit.reminder ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1 font-semibold text-foreground/80">
-            <Bell className="h-3.5 w-3.5" /> {habit.reminder}
-          </span>
-        ) : null}
         <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-3 py-1 font-semibold text-foreground/80">
           🔥 {streak} day{streak === 1 ? "" : "s"}
         </span>

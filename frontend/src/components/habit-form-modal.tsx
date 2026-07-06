@@ -1,10 +1,22 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CATEGORIES, type Frequency, type Habit } from "@/lib/habits-store";
 
 export type HabitFormValue = {
@@ -12,7 +24,6 @@ export type HabitFormValue = {
   description?: string;
   category: string;
   frequency: Frequency;
-  reminder?: string;
   color?: Habit["color"];
 };
 
@@ -31,7 +42,6 @@ export function HabitFormModal({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [frequency, setFrequency] = useState<Frequency>("daily");
-  const [reminder, setReminder] = useState("");
   const [color, setColor] = useState<Habit["color"]>("pink");
 
   useEffect(() => {
@@ -40,7 +50,6 @@ export function HabitFormModal({
       setDescription(initial?.description ?? "");
       setCategory(initial?.category ?? CATEGORIES[0]);
       setFrequency(initial?.frequency ?? "daily");
-      setReminder(initial?.reminder ?? "");
       setColor(initial?.color ?? "pink");
     }
   }, [open, initial]);
@@ -52,7 +61,6 @@ export function HabitFormModal({
       description: description.trim() || undefined,
       category,
       frequency,
-      reminder: reminder || undefined,
       color,
     });
     onOpenChange(false);
@@ -96,16 +104,24 @@ export function HabitFormModal({
             <div className="grid gap-2">
               <Label>Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="rounded-2xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="rounded-2xl">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="grid gap-2">
               <Label>Frequency</Label>
               <Select value={frequency} onValueChange={(v) => setFrequency(v as Frequency)}>
-                <SelectTrigger className="rounded-2xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="rounded-2xl">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="daily">Daily</SelectItem>
                   <SelectItem value="weekly">Weekly</SelectItem>
@@ -113,17 +129,6 @@ export function HabitFormModal({
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="reminder">Reminder time (optional)</Label>
-            <Input
-              id="reminder"
-              type="time"
-              value={reminder}
-              onChange={(e) => setReminder(e.target.value)}
-              className="rounded-2xl"
-            />
           </div>
 
           <div className="grid gap-2">
@@ -148,7 +153,10 @@ export function HabitFormModal({
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-2xl">
             Cancel
           </Button>
-          <Button onClick={submit} className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button
+            onClick={submit}
+            className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
+          >
             Save
           </Button>
         </DialogFooter>

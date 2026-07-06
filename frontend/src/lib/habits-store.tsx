@@ -9,7 +9,6 @@ export type Habit = {
   description?: string;
   category: string;
   frequency: Frequency;
-  reminder?: string;
   color: "pink" | "lavender" | "sage" | "sky" | "cream";
   createdAt: string;
   /** ISO date strings (YYYY-MM-DD) marked complete */
