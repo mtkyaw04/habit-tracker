@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api, getToken, setToken, type ApiProfile } from "@/lib/api";
 
-export type Frequency = "daily" | "weekly" | "custom";
+export type Frequency = "daily" | "weekly";
 
 export type Habit = {
   id: string;
@@ -9,6 +9,7 @@ export type Habit = {
   description?: string;
   category: string;
   frequency: Frequency;
+  weekDays?: number[];
   color: "pink" | "lavender" | "sage" | "sky" | "cream";
   createdAt: string;
   /** ISO date strings (YYYY-MM-DD) marked complete */
@@ -28,8 +29,15 @@ export const CATEGORIES = [
 ];
 const COLORS: Habit["color"][] = ["pink", "lavender", "sage", "sky", "cream"];
 
-export const todayKey = () => new Date().toISOString().slice(0, 10);
-export const dateKey = (d: Date) => d.toISOString().slice(0, 10);
+export const dateKey = (d: Date) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+export const todayKey = () => dateKey(new Date());
 
 const emptyProfile: Profile = {
   username: "",
@@ -202,13 +210,14 @@ export function useHabits() {
 /* ---------- derived stats helpers ---------- */
 
 export function isDueToday(h: Habit, date = new Date()): boolean {
-  if (h.frequency === "daily") return true;
-  if (h.frequency === "weekly") {
-    // due on same weekday as createdAt
-    const created = new Date(h.createdAt);
-    return created.getDay() === date.getDay();
-  }
-  return true;
+if (h.frequency === "daily") return true;
+
+if (h.frequency === "weekly") {
+if (!h.weekDays || h.weekDays.length === 0) return false;
+return h.weekDays.includes(date.getDay());
+}
+
+return true;
 }
 
 export function completedOn(h: Habit, date: Date) {
