@@ -1,8 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line, CartesianGrid } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  LineChart,
+  Line,
+  CartesianGrid,
+} from "recharts";
 import { AppShell } from "@/components/app-shell";
-import { useHabits, dateKey, overallCurrentStreak, overallLongestStreak, isDueToday } from "@/lib/habits-store";
+import {
+  useHabits,
+  dateKey,
+  overallCurrentStreak,
+  overallLongestStreak,
+  isDueToday,
+} from "@/lib/habits-store";
 import { Flame, Trophy, Percent, Target } from "lucide-react";
 
 export const Route = createFileRoute("/stats")({
@@ -59,10 +75,31 @@ function StatsPage() {
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MiniStat label="Completion rate" value={`${rate}%`} color="bg-pink/60" icon={<Percent className="h-4 w-4" />} />
-        <MiniStat label="Current streak" value={`${streak}d`} color="bg-lavender/60" icon={<Flame className="h-4 w-4" />} />
-        <MiniStat label="Longest streak" value={`${longest}d`} color="bg-sage/60" icon={<Trophy className="h-4 w-4" />} />
-        <MiniStat label="Active habits" value={String(habits.length)} color="bg-sky/60" icon={<Target className="h-4 w-4" />} />
+        {/* <MiniStat
+          label="Completion rate"
+          value={`${rate}%`}
+          color="bg-pink/60"
+          icon={<Percent className="h-4 w-4" />}
+        />*/}
+
+        <MiniStat
+          label="Current streak"
+          value={`${streak}d`}
+          color="bg-lavender/60"
+          icon={<Flame className="h-4 w-4" />}
+        />
+        <MiniStat
+          label="Longest streak"
+          value={`${longest}d`}
+          color="bg-sage/60"
+          icon={<Trophy className="h-4 w-4" />}
+        />
+        <MiniStat
+          label="Active habits"
+          value={String(habits.length)}
+          color="bg-sky/60"
+          icon={<Target className="h-4 w-4" />}
+        />
       </section>
 
       <section className="mt-8 rounded-3xl bg-card p-5 shadow-soft">
@@ -71,8 +108,18 @@ function StatsPage() {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weekly} barCategoryGap="30%">
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis dataKey="label" stroke="var(--color-muted-foreground)" tickLine={false} axisLine={false} />
-              <YAxis stroke="var(--color-muted-foreground)" tickLine={false} axisLine={false} allowDecimals={false} />
+              <XAxis
+                dataKey="label"
+                stroke="var(--color-muted-foreground)"
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                stroke="var(--color-muted-foreground)"
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+              />
               <Tooltip
                 contentStyle={{
                   background: "var(--color-card)",
@@ -92,8 +139,19 @@ function StatsPage() {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={monthly}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis dataKey="label" stroke="var(--color-muted-foreground)" tickLine={false} axisLine={false} interval={4} />
-              <YAxis stroke="var(--color-muted-foreground)" tickLine={false} axisLine={false} allowDecimals={false} />
+              <XAxis
+                dataKey="label"
+                stroke="var(--color-muted-foreground)"
+                tickLine={false}
+                axisLine={false}
+                interval={4}
+              />
+              <YAxis
+                stroke="var(--color-muted-foreground)"
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+              />
               <Tooltip
                 contentStyle={{
                   background: "var(--color-card)",
@@ -116,11 +174,23 @@ function StatsPage() {
   );
 }
 
-function MiniStat({ label, value, color, icon }: { label: string; value: string; color: string; icon: React.ReactNode }) {
+function MiniStat({
+  label,
+  value,
+  color,
+  icon,
+}: {
+  label: string;
+  value: string;
+  color: string;
+  icon: React.ReactNode;
+}) {
   return (
     <div className={`rounded-3xl ${color} p-5 shadow-soft`}>
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-widest text-foreground/70">{label}</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-foreground/70">
+          {label}
+        </span>
         <span className="grid h-8 w-8 place-items-center rounded-xl bg-white/70">{icon}</span>
       </div>
       <div className="mt-2 font-display text-3xl font-bold">{value}</div>

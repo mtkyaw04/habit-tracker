@@ -4,7 +4,7 @@ import { type ReactNode, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useHabits } from "@/lib/habits-store";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner"; // Import Button component
+import { toast } from "sonner";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: Home },
@@ -15,13 +15,20 @@ const NAV = [
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
+  // Corrected prop type definition
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, isAuthenticated, logout } = useHabits(); // Destructure logout
+  const { profile, isAuthenticated, logout } = useHabits();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) navigate({ to: "/login" });
   }, [isAuthenticated, navigate]);
+
+  const handleLogout = () => {
+    logout();
+    toast("Logged out");
+    navigate({ to: "/login" });
+  };
 
   return (
     <div className="min-h-screen">
@@ -59,19 +66,17 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        {/* Logout button*/}
+        {/* Desktop Logout Button */}
         <Button
           variant="ghost"
-          onClick={() => {
-            logout();
-            toast("Logged out");
-            navigate({ to: "/login" });
-          }}
-          className="rounded-2xl text-destructive hover:bg-destructive/10"
+          onClick={handleLogout}
+          className="mt-4 flex items-center gap-3 rounded-2xl border border-destructive px-4 py-3 text-sm font-semibold text-destructive transition-all hover:bg-destructive/10"
         >
-          <LogOut className="mr-1 h-4 w-4" /> Logout
+          <LogOut className="h-5 w-5" />
+          Logout
         </Button>
 
+        {/* Profile Card */}
         <div className="mt-4 rounded-2xl bg-accent/50 p-4 shadow-soft">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-full bg-card text-xl shadow-soft">
@@ -95,8 +100,24 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <span className="font-display text-lg font-bold">Bloom</span>
           </Link>
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-accent/60 text-lg">
-            {profile.avatar}
+          <div className="flex items-center gap-2">
+            {" "}
+            {/* Added a flex container for avatar and logout */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="h-9 w-9 shrink-0 rounded-full text-destructive hover:bg-destructive/10"
+              aria-label="Logout"
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
+            <Link
+              to="/profile"
+              className="grid h-9 w-9 place-items-center rounded-full bg-accent/60 text-lg"
+            >
+              {profile.avatar}
+            </Link>
           </div>
         </header>
 
