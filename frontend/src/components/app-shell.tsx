@@ -15,14 +15,16 @@ const NAV = [
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
-  // Corrected prop type definition
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, isAuthenticated, logout } = useHabits();
+  const { profile, isAuthenticated, isLoading, logout } = useHabits(); // Destructure isLoading
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) navigate({ to: "/login" });
-  }, [isAuthenticated, navigate]);
+    // Only redirect if not authenticated AND not currently loading authentication status
+    if (!isAuthenticated && !isLoading) {
+      navigate({ to: "/login" });
+    }
+  }, [isAuthenticated, isLoading, navigate]); // Add isLoading to dependency array
 
   const handleLogout = () => {
     logout();
@@ -101,8 +103,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="font-display text-lg font-bold">Bloom</span>
           </Link>
           <div className="flex items-center gap-2">
-            {" "}
-            {/* Added a flex container for avatar and logout */}
             <Button
               variant="ghost"
               size="icon"
@@ -112,10 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <LogOut className="h-5 w-5" />
             </Button>
-            <Link
-              to="/profile"
-              className="grid h-9 w-9 place-items-center rounded-full bg-accent/60 text-lg"
-            >
+            <Link to="/profile" className="grid h-9 w-9 place-items-center rounded-full bg-accent/60 text-lg">
               {profile.avatar}
             </Link>
           </div>
