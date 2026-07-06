@@ -16,17 +16,20 @@ export const Route = createFileRoute("/habits")({
 
 function HabitsPage() {
   const { habits, addHabit, updateHabit, deleteHabit, toggleComplete } = useHabits();
+
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Habit | null>(null);
-  const [filter, setFilter] = useState<string>("All");
+  const [filter, setFilter] = useState("All");
 
   const filtered = filter === "All" ? habits : habits.filter((h) => h.category === filter);
+
   const WEEK_MAP = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   function formatWeekDays(days?: number[]) {
     if (!days?.length) return null;
     return days.map((d) => WEEK_MAP[d]).join(", ");
   }
+
   return (
     <AppShell>
       <div className="mb-6 flex items-end justify-between gap-4">
@@ -36,18 +39,25 @@ function HabitsPage() {
             {habits.length} habit{habits.length === 1 ? "" : "s"} in your garden 🌷
           </p>
         </div>
+
         <Button
-          onClick={() => { setEditing(null); setOpen(true); }}
+          onClick={() => {
+            setEditing(null);
+            setOpen(true);
+          }}
           className="hidden rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 md:inline-flex"
         >
-          <Plus className="mr-1 h-4 w-4" /> Add habit
+          <Plus className="mr-1 h-4 w-4" />
+          Add habit
         </Button>
       </div>
 
       <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2">
         <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          <Filter className="h-3.5 w-3.5" /> Filter
+          <Filter className="h-3.5 w-3.5" />
+          Filter
         </span>
+
         {["All", ...CATEGORIES].map((c) => (
           <button
             key={c}
@@ -67,12 +77,18 @@ function HabitsPage() {
       {filtered.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-card/60 p-10 text-center shadow-soft">
           <h3 className="font-display text-lg font-semibold">No habits here yet</h3>
+
           <p className="mt-1 text-sm text-muted-foreground">Tap the button below to start.</p>
+
           <Button
-            onClick={() => { setEditing(null); setOpen(true); }}
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
             className="mt-4 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Plus className="mr-1 h-4 w-4" /> Add your first habit
+            <Plus className="mr-1 h-4 w-4" />
+            Add your first habit
           </Button>
         </div>
       ) : (
@@ -83,11 +99,19 @@ function HabitsPage() {
               habit={h}
               onToggle={() => {
                 toggleComplete(h.id);
+
                 const nowDone = !h.completions.includes(todayKey());
+
                 toast.success(nowDone ? `Nice work — ${h.name} ✨` : `Unmarked ${h.name}`);
               }}
-              onEdit={() => { setEditing(h); setOpen(true); }}
-              onDelete={() => { deleteHabit(h.id); toast(`Removed ${h.name}`); }}
+              onEdit={() => {
+                setEditing(h);
+                setOpen(true);
+              }}
+              onDelete={() => {
+                deleteHabit(h.id);
+                toast(`Removed ${h.name}`);
+              }}
             />
           ))}
         </div>
@@ -95,7 +119,10 @@ function HabitsPage() {
 
       {/* Floating add button (mobile) */}
       <button
-        onClick={() => { setEditing(null); setOpen(true); }}
+        onClick={() => {
+          setEditing(null);
+          setOpen(true);
+        }}
         className="fixed bottom-24 right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-cozy transition-transform hover:scale-105 md:hidden"
         aria-label="Add habit"
       >
@@ -104,7 +131,13 @@ function HabitsPage() {
 
       <HabitFormModal
         open={open}
-        onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}
+        onOpenChange={(v) => {
+          setOpen(v);
+
+          if (!v) {
+            setEditing(null);
+          }
+        }}
         initial={editing}
         onSubmit={(v: HabitFormValue) => {
           if (editing) {

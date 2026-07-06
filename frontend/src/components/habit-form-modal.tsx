@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -17,7 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { CATEGORIES, type Frequency, type Habit } from "@/lib/habits-store";
+import { cn } from "@/lib/utils";
 
 export type HabitFormValue = {
   name: string;
@@ -38,6 +39,14 @@ const WEEK_DAYS = [
   { label: "Sat", value: 6 },
 ];
 
+const COLOR_CLASSES: Record<Habit["color"], string> = {
+  pink: "bg-pink",
+  lavender: "bg-lavender",
+  sage: "bg-sage",
+  sky: "bg-sky",
+  cream: "bg-cream",
+};
+
 export function HabitFormModal({
   open,
   onOpenChange,
@@ -51,32 +60,34 @@ export function HabitFormModal({
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<string>(CATEGORIES[0]);
+  const [category, setCategory] = useState(CATEGORIES[0]);
   const [frequency, setFrequency] = useState<Frequency>("daily");
   const [weekDays, setWeekDays] = useState<number[]>([]);
   const [color, setColor] = useState<Habit["color"]>("pink");
 
   useEffect(() => {
-    if (open) {
-      setName(initial?.name ?? "");
-      setDescription(initial?.description ?? "");
-      setCategory(initial?.category ?? CATEGORIES[0]);
-      setFrequency(initial?.frequency ?? "daily");
-      setWeekDays((initial as Habit & { weekDays?: number[] })?.weekDays ?? []);
-      setColor(initial?.color ?? "pink");
+    if (!open) {
+      return;
     }
+
+    setName(initial?.name ?? "");
+    setDescription(initial?.description ?? "");
+    setCategory(initial?.category ?? CATEGORIES[0]);
+    setFrequency(initial?.frequency ?? "daily");
+    setWeekDays(initial?.weekDays ?? []);
+    setColor(initial?.color ?? "pink");
   }, [open, initial]);
 
   const toggleWeekDay = (day: number) => {
     setWeekDays((prev) =>
-      prev.includes(day)
-        ? prev.filter((d) => d !== day)
-        : [...prev, day].sort((a, b) => a - b),
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort((a, b) => a - b),
     );
   };
 
   const submit = () => {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      return;
+    }
 
     if (frequency === "weekly" && weekDays.length === 0) {
       alert("Please select at least one day for a weekly habit.");
@@ -109,6 +120,7 @@ export function HabitFormModal({
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="name">Habit name</Label>
+
             <Input
               id="name"
               value={name}
@@ -120,6 +132,7 @@ export function HabitFormModal({
 
           <div className="grid gap-2">
             <Label htmlFor="desc">Description</Label>
+
             <Textarea
               id="desc"
               value={description}
@@ -132,10 +145,12 @@ export function HabitFormModal({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label>Category</Label>
+
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="rounded-2xl">
                   <SelectValue />
                 </SelectTrigger>
+
                 <SelectContent>
                   {CATEGORIES.map((c) => (
                     <SelectItem key={c} value={c}>
@@ -148,10 +163,12 @@ export function HabitFormModal({
 
             <div className="grid gap-2">
               <Label>Frequency</Label>
+
               <Select value={frequency} onValueChange={(v) => setFrequency(v as Frequency)}>
                 <SelectTrigger className="rounded-2xl">
                   <SelectValue />
                 </SelectTrigger>
+
                 <SelectContent>
                   <SelectItem value="daily">Daily</SelectItem>
                   <SelectItem value="weekly">Weekly</SelectItem>
@@ -186,15 +203,18 @@ export function HabitFormModal({
 
           <div className="grid gap-2">
             <Label>Color</Label>
+
             <div className="flex gap-3">
               {swatches.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`h-10 w-10 rounded-2xl border-2 bg-${c} transition-all ${
-                    color === c ? "border-foreground scale-110" : "border-transparent"
-                  }`}
+                  className={cn(
+                    "h-10 w-10 rounded-2xl border-2 transition-all",
+                    COLOR_CLASSES[c],
+                    color === c ? "scale-110 border-foreground" : "border-transparent",
+                  )}
                   aria-label={c}
                 />
               ))}
@@ -203,13 +223,10 @@ export function HabitFormModal({
         </div>
 
         <DialogFooter>
-          <Button
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-            className="rounded-2xl"
-          >
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-2xl">
             Cancel
           </Button>
+
           <Button
             onClick={submit}
             className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
