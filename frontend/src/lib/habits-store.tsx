@@ -67,14 +67,9 @@ const HabitsContext = createContext<Ctx | null>(null);
 export function HabitsProvider({ children }: { children: ReactNode }) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [profile, setProfile] = useState<Profile>(emptyProfile);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(() => !!getToken());
   const [refreshTick, setRefreshTick] = useState(0);
-  const [token, setTokenState] = useState<string | null>(null);
-
-  // Sync token state with localStorage on mount
-  useEffect(() => {
-    setTokenState(getToken());
-  }, []);
+  const [token, setTokenState] = useState<string | null>(() => getToken());
 
   const isAuthenticated = !!token;
 
@@ -85,8 +80,12 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const MIN_LOADING_TIME = 400; // ms
+
     let cancelled = false;
     setIsLoading(true);
+
+    const startTime = Date.now();
 
     Promise.all([api.listHabits<Habit>(), api.getProfile()])
       .then(([habitsRes, profileRes]) => {
@@ -101,7 +100,16 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
           setTokenState(null);
         }
       })
-      .finally(() => !cancelled && setIsLoading(false));
+      .finally(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
+
+        setTimeout(() => {
+          if (!cancelled) {
+            setIsLoading(false);
+          }
+        }, remaining);
+      });
 
     return () => {
       cancelled = true;
@@ -210,14 +218,14 @@ export function useHabits() {
 /* ---------- derived stats helpers ---------- */
 
 export function isDueToday(h: Habit, date = new Date()): boolean {
-if (h.frequency === "daily") return true;
+  if (h.frequency === "daily") return true;
 
-if (h.frequency === "weekly") {
-if (!h.weekDays || h.weekDays.length === 0) return false;
-return h.weekDays.includes(date.getDay());
-}
+  if (h.frequency === "weekly") {
+    if (!h.weekDays || h.weekDays.length === 0) return false;
+    return h.weekDays.includes(date.getDay());
+  }
 
-return true;
+  return true;
 }
 
 export function completedOn(h: Habit, date: Date) {

@@ -39,18 +39,40 @@ function CalendarPage() {
     return map;
   }, [habits]);
 
-  const selectedList = completedByDay.get(selected) ?? [];
   const selectedDate = parseISO(selected);
+
+  const selectedDay = selectedDate.getDay();
+  const isPast = selected < todayISO;
+  const isTodaySelected = selected === todayISO;
+  const isFuture = selected > todayISO;
+
+  // Only habits that are due on the selected date
+  const scheduledHabits = habits.filter((habit) => {
+    if (habit.frequency === "daily") return true;
+    return habit.weekDays?.includes(selectedDay);
+  });
+
+  const completedHabits = scheduledHabits.filter((habit) =>
+    habit.completions.includes(selected),
+  );
+
+  const missedHabits = isPast
+    ? scheduledHabits.filter((habit) => !habit.completions.includes(selected))
+    : [];
+
+  const pendingHabits =
+    isTodaySelected || isFuture
+      ? scheduledHabits.filter((habit) => !habit.completions.includes(selected))
+      : [];
 
   return (
     <AppShell>
-      <div className="mb-6">
+      <div className="mb-4">
         <h1 className="font-display text-3xl font-bold sm:text-4xl">Calendar</h1>
-        <p className="mt-1 text-muted-foreground">Look back on the days you showed up.</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="rounded-3xl bg-card p-5 shadow-soft">
+      <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
+        <div className="rounded-2xl bg-card p-4 shadow-soft">
           <div className="mb-4 flex items-center justify-between">
             <button
               onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
@@ -73,13 +95,13 @@ function CalendarPage() {
 
           <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold uppercase text-muted-foreground">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-              <div key={d} className="py-2">
+              <div key={d} className="py-1">
                 {d}
               </div>
             ))}
           </div>
 
-          <div className="mt-1 grid grid-cols-7 gap-1.5">
+          <div className="mt-1 grid grid-cols-7 gap-3">
             {days.map((d, i) => {
               if (!d) return <div key={i} />;
               const iso = dateKey(d);
@@ -93,7 +115,7 @@ function CalendarPage() {
                   key={iso}
                   onClick={() => setSelected(iso)}
                   className={cn(
-                    "relative aspect-square rounded-2xl text-sm font-semibold transition-all",
+                    "mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-semibold transition-all",
                     !inMonth && "opacity-40",
                     isSelected ? "ring-2 ring-primary" : "",
                     intensity === 0 && "bg-muted text-foreground/70 hover:bg-accent/60",
@@ -113,28 +135,89 @@ function CalendarPage() {
           </div>
         </div>
 
-        <aside className="rounded-3xl bg-card p-5 shadow-soft">
+        <aside className="rounded-2xl bg-card p-4 shadow-soft">
           <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             {selectedDate.toLocaleDateString(undefined, { weekday: "long" })}
           </div>
+
           <h3 className="mt-1 font-display text-2xl font-bold">
-            {selectedDate.toLocaleDateString(undefined, { month: "long", day: "numeric" })}
+            {selectedDate.toLocaleDateString(undefined, {
+              month: "long",
+              day: "numeric",
+            })}
           </h3>
 
-          {selectedList.length === 0 ? (
-            <p className="mt-6 text-sm text-muted-foreground">No habits completed on this day.</p>
-          ) : (
-            <ul className="mt-4 space-y-2">
-              {selectedList.map((n, i) => (
-                <li
-                  key={i}
-                  className="rounded-2xl bg-sage/40 px-4 py-2.5 text-sm font-semibold text-sage-foreground"
-                >
-                  ✓ {n}
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="mt-6 space-y-6">
+            {/* Completed */}
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-green-600">
+                Completed ({completedHabits.length})
+              </h4>
+
+              {completedHabits.length > 0 ? (
+                <ul className="space-y-2">
+                  {completedHabits.map((habit) => (
+                    <li
+                      key={habit.id}
+                      className="rounded-xl bg-green-100 px-4 py-2 text-sm font-medium text-green-700"
+                    >
+                      ✓ {habit.name}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">None</p>
+              )}
+            </section>
+
+            {/* Missed */}
+            {isPast && (
+              <section>
+                <h4 className="mb-2 text-sm font-semibold text-red-600">
+                  Missed ({missedHabits.length})
+                </h4>
+
+                {missedHabits.length > 0 ? (
+                  <ul className="space-y-2">
+                    {missedHabits.map((habit) => (
+                      <li
+                        key={habit.id}
+                        className="rounded-xl bg-red-100 px-4 py-2 text-sm font-medium text-red-700"
+                      >
+                        ✕ {habit.name}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">None</p>
+                )}
+              </section>
+            )}
+
+            {/* Pending */}
+            {(isTodaySelected || isFuture) && (
+              <section>
+                <h4 className="mb-2 text-sm font-semibold text-gray-500">
+                  Pending ({pendingHabits.length})
+                </h4>
+
+                {pendingHabits.length > 0 ? (
+                  <ul className="space-y-2">
+                    {pendingHabits.map((habit) => (
+                      <li
+                        key={habit.id}
+                        className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground"
+                      >
+                        ○ {habit.name}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">None</p>
+                )}
+              </section>
+            )}
+          </div>
         </aside>
       </div>
     </AppShell>
