@@ -115,7 +115,7 @@ function CalendarPage() {
                   key={iso}
                   onClick={() => setSelected(iso)}
                   className={cn(
-                    "mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-semibold transition-all",
+                    "relative mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-semibold transition-all",
                     !inMonth && "opacity-40",
                     isSelected ? "ring-2 ring-primary" : "",
                     intensity === 0 && "bg-muted text-foreground/70 hover:bg-accent/60",

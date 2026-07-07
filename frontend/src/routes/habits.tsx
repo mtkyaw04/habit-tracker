@@ -62,17 +62,6 @@ function HabitsPage() {
         {/* Buttons for large screens */}
         <div className="flex gap-2 md:inline-flex hidden">
           {" "}
-          {/* Hide on small screens */}
-          <Button
-            onClick={() => {
-              setEditing(null);
-              setOpen(true);
-            }}
-            className="rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
-          >
-            <Plus className="mr-1 h-4 w-4" />
-            Add habit
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" className="whitespace-nowrap rounded-full">
@@ -91,6 +80,17 @@ function HabitsPage() {
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* Hide on small screens */}
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
+            className="rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
+          >
+            <Plus className="mr-1 h-4 w-4" />
+            Add habit
+          </Button>
         </div>
         {/* Filter by day dropdown for small screens - moved to header */}
         <DropdownMenu>

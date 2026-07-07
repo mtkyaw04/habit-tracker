@@ -65,7 +65,7 @@ export function HabitCard({
             </span>
           </div>
 
-          <h3 className="truncate font-display text-lg font-bold text-foreground">{habit.name}</h3>
+          <h3 className="font-display text-lg font-bold text-foreground">{habit.name}</h3>
 
           {habit.description ? (
             <p className="mt-1 line-clamp-2 text-sm text-foreground/70">{habit.description}</p>
