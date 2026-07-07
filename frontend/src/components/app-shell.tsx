@@ -123,7 +123,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <LogOut className="h-5 w-5" />
             </Button>
-            <Link to="/profile" className="grid h-9 w-9 place-items-center rounded-full bg-accent/60 text-lg">
+            <Link
+              to="/profile"
+              className="grid h-9 w-9 place-items-center rounded-full bg-accent/60 text-lg"
+            >
               {profile.avatar}
             </Link>
           </div>

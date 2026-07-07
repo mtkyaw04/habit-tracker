@@ -65,8 +65,21 @@ export function HabitFormModal({
   const [weekDays, setWeekDays] = useState<number[]>([]);
   const [color, setColor] = useState<Habit["color"]>("pink");
 
+  // Error states
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [weekDaysError, setWeekDaysError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!open) {
+      // Clear all states when modal closes
+      setName("");
+      setDescription("");
+      setCategory(CATEGORIES[0]);
+      setFrequency("daily");
+      setWeekDays([]);
+      setColor("pink");
+      setNameError(null);
+      setWeekDaysError(null);
       return;
     }
 
@@ -76,21 +89,56 @@ export function HabitFormModal({
     setFrequency(initial?.frequency ?? "daily");
     setWeekDays(initial?.weekDays ?? []);
     setColor(initial?.color ?? "pink");
+    setNameError(null); // Clear errors on open
+    setWeekDaysError(null); // Clear errors on open
   }, [open, initial]);
 
   const toggleWeekDay = (day: number) => {
-    setWeekDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort((a, b) => a - b),
-    );
+    setWeekDays((prev) => {
+      const isSelected = prev.includes(day);
+      let newWeekDays;
+
+      if (isSelected) {
+        newWeekDays = prev.filter((d) => d !== day);
+      } else {
+        if (prev.length >= 6) {
+          setWeekDaysError("You can choose up to 6 days.");
+          return prev; // Prevent adding more than 6 days
+        }
+        newWeekDays = [...prev, day].sort((a, b) => a - b);
+      }
+      setWeekDaysError(null); // Clear error when selection changes
+      return newWeekDays;
+    });
   };
 
   const submit = () => {
+    let hasError = false;
+
+    // Validate habit name
     if (!name.trim()) {
-      return;
+      setNameError("Please Fill in habit name.");
+      hasError = true;
+    } else {
+      setNameError(null);
     }
 
-    if (frequency === "weekly" && weekDays.length === 0) {
-      alert("Please select at least one day for a weekly habit.");
+    // Validate weekly frequency days
+    if (frequency === "weekly") {
+      if (weekDays.length === 0) {
+        setWeekDaysError("Please select at least one day for a weekly habit.");
+        hasError = true;
+      } else if (weekDays.length > 6) {
+        setWeekDaysError("You can choose up to 6 days for a weekly habit.");
+        hasError = true;
+      } else {
+        setWeekDaysError(null);
+      }
+    } else {
+      setWeekDaysError(null); // Clear weekly days error if frequency is not weekly
+    }
+
+    if (hasError) {
       return;
     }
 
@@ -124,10 +172,17 @@ export function HabitFormModal({
             <Input
               id="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setNameError(null); // Clear error on change
+              }}
               placeholder="e.g. Morning meditation"
-              className="rounded-2xl"
+              className={cn(
+                "rounded-2xl",
+                nameError && "border-destructive focus-visible:ring-destructive",
+              )}
             />
+            {nameError && <p className="text-sm text-destructive">{nameError}</p>}
           </div>
 
           <div className="grid gap-2">
@@ -164,7 +219,13 @@ export function HabitFormModal({
             <div className="grid gap-2">
               <Label>Frequency</Label>
 
-              <Select value={frequency} onValueChange={(v) => setFrequency(v as Frequency)}>
+              <Select
+                value={frequency}
+                onValueChange={(v) => {
+                  setFrequency(v as Frequency);
+                  setWeekDaysError(null); // Clear weekly days error if frequency changes
+                }}
+              >
                 <SelectTrigger className="rounded-2xl">
                   <SelectValue />
                 </SelectTrigger>
@@ -189,7 +250,7 @@ export function HabitFormModal({
                         key={day.value}
                         type="button"
                         variant={selected ? "default" : "outline"}
-                        className="rounded-full px-4"
+                        className={cn("rounded-full px-4", weekDaysError && "border-destructive")}
                         onClick={() => toggleWeekDay(day.value)}
                       >
                         {day.label}
@@ -197,6 +258,7 @@ export function HabitFormModal({
                     );
                   })}
                 </div>
+                {weekDaysError && <p className="text-sm text-destructive">{weekDaysError}</p>}
               </div>
             )}
           </div>

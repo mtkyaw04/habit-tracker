@@ -38,11 +38,13 @@ export function HabitCard({
   onToggle,
   onEdit,
   onDelete,
+  viewMode,
 }: {
   habit: Habit;
   onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  viewMode: "today" | "all";
 }) {
   const done = habit.completions.includes(todayKey());
   const streak = computeStreak(habit);
@@ -70,18 +72,44 @@ export function HabitCard({
           ) : null}
         </div>
 
-        <button
-          onClick={onToggle}
-          aria-label={done ? "Mark incomplete" : "Mark complete"}
-          className={cn(
-            "grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 transition-all",
-            done
-              ? "border-transparent bg-foreground text-background shadow-soft"
-              : "border-foreground/25 bg-white/40 text-foreground/50 hover:border-foreground/60",
-          )}
-        >
-          <Check className={cn("h-5 w-5 transition-transform", done ? "scale-100" : "scale-75")} />
-        </button>
+        {viewMode === "today" ? (
+          <button
+            onClick={onToggle}
+            aria-label={done ? "Mark incomplete" : "Mark complete"}
+            className={cn(
+              "grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 transition-all",
+              done
+                ? "border-transparent bg-foreground text-background shadow-soft"
+                : "border-foreground/25 bg-white/40 text-foreground/50 hover:border-foreground/60",
+            )}
+          >
+            <Check
+              className={cn("h-5 w-5 transition-transform", done ? "scale-100" : "scale-75")}
+            />
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={onEdit}
+              className="rounded-2xl bg-white/50 hover:bg-white/80"
+              aria-label="Edit"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={onDelete}
+              className="rounded-2xl bg-white/50 text-destructive hover:bg-white/80"
+              aria-label="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
@@ -95,40 +123,22 @@ export function HabitCard({
         </span>
       </div>
 
-      <div className="mt-4 flex items-center gap-2">
-        <Button
-          size="sm"
-          onClick={onToggle}
-          className={cn(
-            "flex-1 rounded-2xl font-semibold",
-            done
-              ? "bg-foreground text-background hover:bg-foreground/90"
-              : "bg-white/70 text-foreground hover:bg-white",
-          )}
-        >
-          {done ? "Completed" : "Complete"}
-        </Button>
-
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onEdit}
-          className="rounded-2xl bg-white/50 hover:bg-white/80"
-          aria-label="Edit"
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
-
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onDelete}
-          className="rounded-2xl bg-white/50 text-destructive hover:bg-white/80"
-          aria-label="Delete"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
+      {viewMode === "today" && (
+        <div className="mt-4 flex items-center gap-2">
+          <Button
+            size="sm"
+            onClick={onToggle}
+            className={cn(
+              "flex-1 rounded-2xl font-semibold",
+              done
+                ? "bg-foreground text-background hover:bg-foreground/90"
+                : "bg-white/70 text-foreground hover:bg-white",
+            )}
+          >
+            {done ? "Completed" : "Complete"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
