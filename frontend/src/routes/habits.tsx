@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, ChevronDown } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { HabitCard } from "@/components/habit-card";
 import { HabitFormModal, type HabitFormValue } from "@/components/habit-form-modal";
@@ -8,6 +8,13 @@ import { useHabits, type Habit, CATEGORIES, todayKey } from "@/lib/habits-store"
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/habits")({
   head: () => ({ meta: [{ title: "Habits — Bloom" }] }),
@@ -19,11 +26,22 @@ function HabitsPage() {
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Habit | null>(null);
-  const [filter, setFilter] = useState("All");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [dayFilter, setDayFilter] = useState("All");
 
-  const filtered = filter === "All" ? habits : habits.filter((h) => h.category === filter);
+  const WEEK_MAP = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-  const WEEK_MAP = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const filtered = habits.filter((h) => {
+    const matchesCategory = categoryFilter === "All" || h.category === categoryFilter;
+    const isDailyHabit = !h.weekDays || h.weekDays.length === 0; // Check if habit is daily (no specific days)
+
+    const matchesDay =
+      dayFilter === "All" ||
+      (isDailyHabit && dayFilter !== "All") || // Show daily habits if any day is selected
+      (h.weekDays && h.weekDays.includes(WEEK_MAP.indexOf(dayFilter)));
+
+    return matchesCategory && matchesDay;
+  });
 
   function formatWeekDays(days?: number[]) {
     if (!days?.length) return null;
@@ -32,24 +50,72 @@ function HabitsPage() {
 
   return (
     <AppShell>
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        {" "}
+        {/* Changed items-end to items-start */}
         <div>
           <h1 className="font-display text-3xl font-bold sm:text-4xl">Your habits</h1>
           <p className="mt-1 text-muted-foreground">
             {habits.length} habit{habits.length === 1 ? "" : "s"} in your garden 🌷
           </p>
         </div>
-
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setOpen(true);
-          }}
-          className="hidden rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 md:inline-flex"
-        >
-          <Plus className="mr-1 h-4 w-4" />
-          Add habit
-        </Button>
+        {/* Buttons for large screens */}
+        <div className="flex gap-2 md:inline-flex hidden">
+          {" "}
+          {/* Hide on small screens */}
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
+            className="rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
+          >
+            <Plus className="mr-1 h-4 w-4" />
+            Add habit
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" className="whitespace-nowrap rounded-full">
+                {dayFilter === "All" ? "Filter by day" : dayFilter}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuRadioGroup value={dayFilter} onValueChange={setDayFilter}>
+                <DropdownMenuRadioItem value="All">All Days</DropdownMenuRadioItem>
+                {WEEK_MAP.map((day) => (
+                  <DropdownMenuRadioItem key={day} value={day}>
+                    {day}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        {/* Filter by day dropdown for small screens - moved to header */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="secondary"
+              className="whitespace-nowrap rounded-full md:hidden ml-auto self-start"
+            >
+              {" "}
+              {/* Added ml-auto self-start */}
+              {dayFilter === "All" ? "Filter by day" : dayFilter}
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuRadioGroup value={dayFilter} onValueChange={setDayFilter}>
+              <DropdownMenuRadioItem value="All">All Days</DropdownMenuRadioItem>
+              {WEEK_MAP.map((day) => (
+                <DropdownMenuRadioItem key={day} value={day}>
+                  {day}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2">
@@ -61,10 +127,10 @@ function HabitsPage() {
         {["All", ...CATEGORIES].map((c) => (
           <button
             key={c}
-            onClick={() => setFilter(c)}
+            onClick={() => setCategoryFilter(c)}
             className={cn(
               "whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors",
-              filter === c
+              categoryFilter === c
                 ? "border-transparent bg-primary/70 text-primary-foreground shadow-soft"
                 : "border-border bg-card/60 text-muted-foreground hover:bg-accent",
             )}
