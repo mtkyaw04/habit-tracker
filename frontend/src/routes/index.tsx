@@ -2,7 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Flame, Target, TrendingUp, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { HabitCard } from "@/components/habit-card";
-import { useHabits, isDueToday, todayKey, overallCurrentStreak } from "@/lib/habits-store";
+import {
+  useHabits,
+  isDueToday,
+  todayKey,
+  overallCurrentStreak,
+  type Habit,
+} from "@/lib/habits-store";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import { HabitFormModal, type HabitFormValue } from "@/components/habit-form-modal";
@@ -22,9 +28,9 @@ function Dashboard() {
   const { habits, profile, toggleComplete, deleteHabit, updateHabit } = useHabits();
   const [editing, setEditing] = useState<null | (typeof habits)[number]>(null);
 
-  const todays = useMemo(() => habits.filter((h) => isDueToday(h)), [habits]);
+  const todays = useMemo(() => habits.filter((h: Habit) => isDueToday(h)), [habits]);
   const key = todayKey();
-  const completed = todays.filter((h) => h.completions.includes(key)).length;
+  const completed = todays.filter((h: Habit) => h.completions.includes(key)).length;
   const total = todays.length;
   const rate = total ? Math.round((completed / total) * 100) : 0;
   const streak = overallCurrentStreak(habits);
@@ -33,7 +39,11 @@ function Dashboard() {
     <AppShell>
       <section className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-          {new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+          {new Date().toLocaleDateString(undefined, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          })}
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
           {greeting()}, {profile.username} <span className="inline-block">👋</span>
@@ -92,6 +102,7 @@ function Dashboard() {
                   deleteHabit(h.id);
                   toast(`Removed ${h.name}`);
                 }}
+                viewMode="today"
               />
             ))}
           </div>
@@ -127,7 +138,9 @@ function StatCard({
   return (
     <div className={`rounded-3xl ${color} p-5 shadow-soft`}>
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-widest text-foreground/70">{label}</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-foreground/70">
+          {label}
+        </span>
         <span className="grid h-9 w-9 place-items-center rounded-2xl bg-white/70">{icon}</span>
       </div>
       <div className="mt-3 font-display text-3xl font-bold">{value}</div>
@@ -143,7 +156,9 @@ function EmptyState() {
         <Sparkles className="h-6 w-6" />
       </div>
       <h3 className="mt-4 font-display text-lg font-semibold">No habits for today</h3>
-      <p className="mt-1 text-sm text-muted-foreground">Head to the Habits page to plant your first ritual.</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Head to the Habits page to plant your first ritual.
+      </p>
     </div>
   );
 }

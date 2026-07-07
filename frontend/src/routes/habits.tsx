@@ -92,7 +92,7 @@ function HabitsPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           {filtered.map((h) => (
             <HabitCard
               key={h.id}
@@ -112,6 +112,7 @@ function HabitsPage() {
                 deleteHabit(h.id);
                 toast(`Removed ${h.name}`);
               }}
+              viewMode="all"
             />
           ))}
         </div>
