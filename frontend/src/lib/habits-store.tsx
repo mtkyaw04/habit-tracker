@@ -39,6 +39,11 @@ export const dateKey = (d: Date) => {
 
 export const todayKey = () => dateKey(new Date());
 
+export function isHabitCreatedBefore(habit: Habit, date: Date): boolean {
+  const createdDate = dateKey(new Date(habit.createdAt));
+  return createdDate <= dateKey(date);
+}
+
 const emptyProfile: Profile = {
   username: "",
   email: "",
