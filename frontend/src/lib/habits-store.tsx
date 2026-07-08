@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api, getToken, setToken, type ApiProfile } from "@/lib/api";
-import { v4 as uuidv4 } from 'uuid'; // Import v4 from uuid
+import { v4 as uuidv4 } from "uuid"; // Import v4 from uuid
 
 export type Frequency = "daily" | "weekly";
 
@@ -202,7 +202,6 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
           .then((updated) => setProfile(updated))
           .catch((err) => console.error("Failed to update profile", err));
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
     [habits, profile, isAuthenticated, isLoading, token],
   );

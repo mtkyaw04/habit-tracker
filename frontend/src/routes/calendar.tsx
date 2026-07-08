@@ -147,7 +147,7 @@ function CalendarPage() {
             })}
           </h3>
 
-          <div className="mt-6 space-y-6">
+          <div className="mt-6 space-y-6 max-h-[300px] overflow-y-auto pr-2 thin-scrollbar">
             {/* Completed */}
             <section>
               <h4 className="mb-2 text-sm font-semibold text-green-600">
