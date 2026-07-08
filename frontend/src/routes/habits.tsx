@@ -54,9 +54,9 @@ function HabitsPage() {
         {" "}
         {/* Changed items-end to items-start */}
         <div>
-          <h1 className="font-display text-3xl font-bold sm:text-4xl">Your habits</h1>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">My habits</h1>
           <p className="mt-1 text-muted-foreground">
-            {habits.length} habit{habits.length === 1 ? "" : "s"} in your garden 🌷
+            {habits.length} habit{habits.length === 1 ? "" : "s"} in my garden 🌷
           </p>
         </div>
         {/* Buttons for large screens */}

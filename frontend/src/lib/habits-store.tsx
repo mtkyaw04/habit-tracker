@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api, getToken, setToken, type ApiProfile } from "@/lib/api";
+import { v4 as uuidv4 } from 'uuid'; // Import v4 from uuid
 
 export type Frequency = "daily" | "weekly";
 
@@ -138,7 +139,7 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
       },
 
       addHabit: (h) => {
-        const tempId = crypto.randomUUID();
+        const tempId = uuidv4(); // Replaced crypto.randomUUID() with uuidv4()
         const optimistic: Habit = {
           id: tempId,
           createdAt: new Date().toISOString(),
