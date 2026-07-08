@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
-import { useHabits, dateKey } from "@/lib/habits-store";
+import { useHabits, dateKey, isHabitCreatedBefore } from "@/lib/habits-store";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/calendar")({
@@ -29,13 +29,17 @@ function CalendarPage() {
 
   const completedByDay = useMemo(() => {
     const map = new Map<string, string[]>();
+
     habits.forEach((h) => {
       h.completions.forEach((d) => {
+        if (!isHabitCreatedBefore(h, parseISO(d))) return;
+
         const arr = map.get(d) ?? [];
         arr.push(h.name);
         map.set(d, arr);
       });
     });
+
     return map;
   }, [habits]);
 
@@ -48,7 +52,15 @@ function CalendarPage() {
 
   // Only habits that are due on the selected date
   const scheduledHabits = habits.filter((habit) => {
-    if (habit.frequency === "daily") return true;
+    // Do not show habits before they were created
+    if (!isHabitCreatedBefore(habit, selectedDate)) {
+      return false;
+    }
+
+    if (habit.frequency === "daily") {
+      return true;
+    }
+
     return habit.weekDays?.includes(selectedDay);
   });
 
@@ -109,7 +121,6 @@ function CalendarPage() {
               const inMonth = d.getMonth() === cursor.getMonth();
               const isToday = iso === todayISO;
               const isSelected = iso === selected;
-              const intensity = Math.min(done.length, 4);
               return (
                 <button
                   key={iso}
@@ -117,12 +128,9 @@ function CalendarPage() {
                   className={cn(
                     "relative mx-auto grid h-10 w-10 place-items-center rounded-full text-sm font-semibold transition-all",
                     !inMonth && "opacity-40",
-                    isSelected ? "ring-2 ring-primary" : "",
-                    intensity === 0 && "bg-muted text-foreground/70 hover:bg-accent/60",
-                    intensity === 1 && "bg-sage/40 text-foreground",
-                    intensity === 2 && "bg-sage/60 text-foreground",
-                    intensity === 3 && "bg-sage text-sage-foreground",
-                    intensity >= 4 && "bg-sage text-sage-foreground shadow-soft",
+                    isSelected
+                      ? "bg-muted ring-2 ring-primary"
+                      : "bg-muted text-foreground hover:bg-accent",
                   )}
                 >
                   <span>{d.getDate()}</span>
