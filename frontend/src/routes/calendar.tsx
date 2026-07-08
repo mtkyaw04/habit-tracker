@@ -64,9 +64,7 @@ function CalendarPage() {
     return habit.weekDays?.includes(selectedDay);
   });
 
-  const completedHabits = scheduledHabits.filter((habit) =>
-    habit.completions.includes(selected),
-  );
+  const completedHabits = scheduledHabits.filter((habit) => habit.completions.includes(selected));
 
   const missedHabits = isPast
     ? scheduledHabits.filter((habit) => !habit.completions.includes(selected))
