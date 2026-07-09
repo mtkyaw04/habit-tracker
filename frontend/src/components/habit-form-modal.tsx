@@ -52,11 +52,13 @@ export function HabitFormModal({
   onOpenChange,
   onSubmit,
   initial,
+  isRecommended = false, // New prop with default false
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSubmit: (v: HabitFormValue) => void;
   initial?: Habit | null;
+  isRecommended?: boolean; // New prop
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -161,7 +163,7 @@ export function HabitFormModal({
       <DialogContent className="rounded-3xl sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">
-            {initial ? "Edit habit" : "Add a new habit"}
+            {initial && !isRecommended ? "Edit habit" : "Add a new habit"}
           </DialogTitle>
         </DialogHeader>
 
@@ -181,6 +183,7 @@ export function HabitFormModal({
                 "rounded-2xl",
                 nameError && "border-destructive focus-visible:ring-destructive",
               )}
+              disabled={isRecommended} // Disable if it's a recommended habit
             />
             {nameError && <p className="text-sm text-destructive">{nameError}</p>}
           </div>
@@ -194,6 +197,7 @@ export function HabitFormModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional — what makes this habit meaningful?"
               className="min-h-20 rounded-2xl"
+              disabled={isRecommended} // Disable if it's a recommended habit
             />
           </div>
 
@@ -201,7 +205,7 @@ export function HabitFormModal({
             <div className="grid gap-2">
               <Label>Category</Label>
 
-              <Select value={category} onValueChange={setCategory}>
+              <Select value={category} onValueChange={setCategory} disabled={isRecommended}> {/* Disable if it's a recommended habit */}
                 <SelectTrigger className="rounded-2xl">
                   <SelectValue />
                 </SelectTrigger>
