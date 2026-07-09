@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, Activity, Heart, Moon, BookOpen, Clipboard, Brush, MessageCircle, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { HabitFormModal, type HabitFormValue } from "@/components/habit-form-modal";
 import { useHabits, type Habit, CATEGORIES } from "@/lib/habits-store";
@@ -194,14 +194,14 @@ const colorMap: Record<string, string> = {
   cream: "bg-amber-100", // Using amber for cream-like color
 };
 
-const CATEGORY_ICON: Record<string, string> = {
-  Health: "💧",
-  Fitness: "🏃",
-  Mindfulness: "🧘",
-  Learning: "📚",
-  Productivity: "🗂️",
-  Creativity: "🎨",
-  Social: "💬",
+const CATEGORY_ICON: Record<string, JSX.Element> = {
+  Health: <Heart className="h-6 w-6 text-foreground" />,
+  Fitness: <Activity className="h-6 w-6 text-foreground" />,
+  Mindfulness: <Moon className="h-6 w-6 text-foreground" />,
+  Learning: <BookOpen className="h-6 w-6 text-foreground" />,
+  Productivity: <Clipboard className="h-6 w-6 text-foreground" />,
+  Creativity: <Brush className="h-6 w-6 text-foreground" />,
+  Social: <MessageCircle className="h-6 w-6 text-foreground" />,
 };
 
 function HabitLibraryPage() {
@@ -278,7 +278,7 @@ function HabitLibraryPage() {
                     )}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="text-2xl leading-none">{CATEGORY_ICON[habit.category] ?? "✨"}</div>
+                      <div className="flex h-6 w-6 items-center justify-center">{CATEGORY_ICON[habit.category] ?? <Sparkles className="h-6 w-6 text-foreground" />}</div>
                       <div className="min-w-0">
                         <p className="font-display text-base font-bold text-foreground truncate">{habit.name}</p>
                         <p className="text-sm text-muted-foreground mt-1">{habit.description}</p>
