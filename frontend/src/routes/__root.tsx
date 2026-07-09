@@ -69,7 +69,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Bloom — Gentle Habit Tracker" },
+      { title: "Bloom — Habit Tracker" },
       { name: "description", content: "A soft, cozy habit tracker that helps you build gentle daily rituals with streaks, stats, and a calming pastel interface." },
       { property: "og:title", content: "Bloom — Gentle Habit Tracker" },
       { property: "og:description", content: "Build calm daily rituals with streaks, stats, and a soft pastel interface." },
@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/logo.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
