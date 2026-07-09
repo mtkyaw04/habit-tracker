@@ -14,6 +14,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HabitsRouteImport } from './routes/habits'
+import { Route as HabitLibraryRouteImport } from './routes/habit-library'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -42,6 +43,11 @@ const HabitsRoute = HabitsRouteImport.update({
   path: '/habits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HabitLibraryRoute = HabitLibraryRouteImport.update({
+  id: '/habit-library',
+  path: '/habit-library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CalendarRoute = CalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
@@ -56,6 +62,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/habit-library': typeof HabitLibraryRoute
   '/habits': typeof HabitsRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/habit-library': typeof HabitLibraryRoute
   '/habits': typeof HabitsRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/habit-library': typeof HabitLibraryRoute
   '/habits': typeof HabitsRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/calendar'
+    | '/habit-library'
     | '/habits'
     | '/login'
     | '/profile'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/calendar'
+    | '/habit-library'
     | '/habits'
     | '/login'
     | '/profile'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/calendar'
+    | '/habit-library'
     | '/habits'
     | '/login'
     | '/profile'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarRoute: typeof CalendarRoute
+  HabitLibraryRoute: typeof HabitLibraryRoute
   HabitsRoute: typeof HabitsRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HabitsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/habit-library': {
+      id: '/habit-library'
+      path: '/habit-library'
+      fullPath: '/habit-library'
+      preLoaderRoute: typeof HabitLibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calendar': {
       id: '/calendar'
       path: '/calendar'
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
+  HabitLibraryRoute: HabitLibraryRoute,
   HabitsRoute: HabitsRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,

@@ -1,6 +1,30 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, ArrowLeft, Activity, Heart, Moon, BookOpen, Clipboard, Brush, MessageCircle, Sparkles } from "lucide-react";
+import {
+  Plus,
+  ArrowLeft,
+  Sparkles,
+  Droplet,
+  Carrot,
+  Bed,
+  StretchHorizontal,
+  Footprints,
+  Flower,
+  Feather,
+  Wind,
+  Book,
+  GraduationCap,
+  MonitorPlay,
+  CalendarCheck,
+  Target,
+  Inbox,
+  Palette,
+  Pencil,
+  Camera,
+  MessageSquareText,
+  Smile,
+  Users,
+} from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { HabitFormModal, type HabitFormValue } from "@/components/habit-form-modal";
 import { useHabits, type Habit, CATEGORIES } from "@/lib/habits-store";
@@ -15,7 +39,7 @@ export const Route = createFileRoute("/habit-library")({
 
 // Define recommended habits here
 const RECOMMENDED_HABITS_DATA: {
-  [category: string]: Omit<Habit, "id" | "createdAt" | "completions">[];
+  [category: string]: (Omit<Habit, "id" | "createdAt" | "completions"> & { icon: string })[];
 } = {
   Health: [
     {
@@ -24,6 +48,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Health",
       frequency: "daily",
       color: "pink",
+      icon: "Droplet",
     },
     {
       name: "Eat 5 servings of vegetables",
@@ -31,6 +56,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Health",
       frequency: "daily",
       color: "pink",
+      icon: "Carrot",
     },
     {
       name: "Sleep for 8 hours",
@@ -38,6 +64,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Health",
       frequency: "daily",
       color: "pink",
+      icon: "Bed",
     },
   ],
 
@@ -48,6 +75,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Fitness",
       frequency: "daily",
       color: "sage",
+      icon: "Bed", // Changed from Run
     },
     {
       name: "Stretch for 10 minutes",
@@ -55,6 +83,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Fitness",
       frequency: "daily",
       color: "sage",
+      icon: "StretchHorizontal",
     },
     {
       name: "Reach 8,000 steps",
@@ -62,6 +91,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Fitness",
       frequency: "daily",
       color: "sage",
+      icon: "Footprints",
     },
   ],
 
@@ -72,6 +102,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Mindfulness",
       frequency: "daily",
       color: "lavender",
+      icon: "Flower", // Changed from Lotus
     },
     {
       name: "Journal for 5 minutes",
@@ -79,6 +110,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Mindfulness",
       frequency: "daily",
       color: "lavender",
+      icon: "Feather",
     },
     {
       name: "Practice deep breathing",
@@ -86,6 +118,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Mindfulness",
       frequency: "daily",
       color: "lavender",
+      icon: "Wind",
     },
   ],
 
@@ -96,6 +129,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Learning",
       frequency: "daily",
       color: "sky",
+      icon: "Book",
     },
     {
       name: "Learn a new skill",
@@ -103,6 +137,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Learning",
       frequency: "daily",
       color: "sky",
+      icon: "GraduationCap",
     },
     {
       name: "Watch an educational video",
@@ -110,6 +145,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Learning",
       frequency: "daily",
       color: "sky",
+      icon: "MonitorPlay",
     },
   ],
 
@@ -120,6 +156,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Productivity",
       frequency: "daily",
       color: "cream",
+      icon: "CalendarCheck",
     },
     {
       name: "Complete your top priority",
@@ -127,6 +164,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Productivity",
       frequency: "daily",
       color: "cream",
+      icon: "Target",
     },
     {
       name: "Clear your inbox",
@@ -134,6 +172,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Productivity",
       frequency: "daily",
       color: "cream",
+      icon: "Inbox",
     },
   ],
 
@@ -144,6 +183,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Creativity",
       frequency: "daily",
       color: "sage",
+      icon: "Palette",
     },
     {
       name: "Write for 10 minutes",
@@ -151,6 +191,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Creativity",
       frequency: "daily",
       color: "sage",
+      icon: "Pencil",
     },
     {
       name: "Capture one photo",
@@ -158,6 +199,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Creativity",
       frequency: "daily",
       color: "sage",
+      icon: "Camera",
     },
   ],
 
@@ -168,6 +210,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Social",
       frequency: "daily",
       color: "sky",
+      icon: "MessageSquareText",
     },
     {
       name: "Give someone a compliment",
@@ -175,6 +218,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Social",
       frequency: "daily",
       color: "sky",
+      icon: "Smile",
     },
     {
       name: "Have a meaningful conversation",
@@ -182,6 +226,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Social",
       frequency: "daily",
       color: "sky",
+      icon: "Users",
     },
   ],
 };
@@ -194,14 +239,29 @@ const colorMap: Record<string, string> = {
   cream: "bg-amber-100", // Using amber for cream-like color
 };
 
-const CATEGORY_ICON: Record<string, JSX.Element> = {
-  Health: <Heart className="h-6 w-6 text-foreground" />,
-  Fitness: <Activity className="h-6 w-6 text-foreground" />,
-  Mindfulness: <Moon className="h-6 w-6 text-foreground" />,
-  Learning: <BookOpen className="h-6 w-6 text-foreground" />,
-  Productivity: <Clipboard className="h-6 w-6 text-foreground" />,
-  Creativity: <Brush className="h-6 w-6 text-foreground" />,
-  Social: <MessageCircle className="h-6 w-6 text-foreground" />,
+// Map icon names to actual Lucid React components
+const ICON_COMPONENTS: Record<string, React.ElementType> = {
+  Droplet,
+  Carrot,
+  Bed, // Changed from Run
+  StretchHorizontal,
+  Footprints,
+  Flower, // Changed from Lotus
+  Feather,
+  Wind,
+  Book,
+  GraduationCap,
+  MonitorPlay,
+  CalendarCheck,
+  Target,
+  Inbox,
+  Palette,
+  Pencil,
+  Camera,
+  MessageSquareText,
+  Smile,
+  Users,
+  Sparkles, // Keep Sparkles as a fallback
 };
 
 function HabitLibraryPage() {
@@ -219,7 +279,7 @@ function HabitLibraryPage() {
   };
 
   const handleAddRecommendedHabit = (
-    habitData: Omit<Habit, "id" | "createdAt" | "completions">,
+    habitData: Omit<Habit, "id" | "createdAt" | "completions"> & { icon: string },
   ) => {
     const tempHabit: Habit = {
       id: "temp-recommended-" + Math.random().toString(36).substring(7),
@@ -269,31 +329,38 @@ function HabitLibraryPage() {
             <div key={category}>
               <h3 className="text-xl font-semibold mb-4">{category}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {habits.map((habit) => (
-                  <div
-                    key={habit.name}
-                    className={cn(
-                      "relative flex flex-col justify-between rounded-xl border border-border p-4 shadow-sm",
-                      colorMap[habit.color],
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-6 w-6 items-center justify-center">{CATEGORY_ICON[habit.category] ?? <Sparkles className="h-6 w-6 text-foreground" />}</div>
-                      <div className="min-w-0">
-                        <p className="font-display text-base font-bold text-foreground truncate">{habit.name}</p>
-                        <p className="text-sm text-muted-foreground mt-1">{habit.description}</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 right-2 h-10 w-10 shrink-0 rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                      onClick={() => handleAddRecommendedHabit(habit)}
+                {habits.map((habit) => {
+                  const IconComponent = ICON_COMPONENTS[habit.icon] || Sparkles;
+                  return (
+                    <div
+                      key={habit.name}
+                      className={cn(
+                        "relative flex flex-col justify-between rounded-xl border border-border p-4 shadow-sm",
+                        colorMap[habit.color],
+                      )}
                     >
-                      <Plus className="h-5 w-5" />
-                    </Button>
-                  </div>
-                ))}
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-6 w-6 items-center justify-center">
+                          <IconComponent className="h-6 w-6 text-foreground" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-display text-base font-bold text-foreground mr-1.5">
+                            {habit.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">{habit.description}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 right-2 h-10 w-10 shrink-0 rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                        onClick={() => handleAddRecommendedHabit(habit)}
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}
