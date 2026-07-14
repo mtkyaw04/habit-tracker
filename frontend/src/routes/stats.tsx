@@ -1,16 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-  LineChart,
-  Line,
-  CartesianGrid,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 import { AppShell } from "@/components/app-shell";
 import {
   useHabits,
@@ -18,8 +8,10 @@ import {
   overallCurrentStreak,
   overallLongestStreak,
   isDueToday,
+  type Habit,
 } from "@/lib/habits-store";
 import { Flame, Trophy, Percent, Target } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/stats")({
   head: () => ({ meta: [{ title: "Statistics — Bloom" }] }),
@@ -47,19 +39,6 @@ function StatsPage() {
     return days;
   }, [habits]);
 
-  const monthly = useMemo(() => {
-    const days: { label: string; completed: number }[] = [];
-    const today = new Date();
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      const iso = dateKey(d);
-      const done = habits.filter((h) => h.completions.includes(iso)).length;
-      days.push({ label: `${d.getMonth() + 1}/${d.getDate()}`, completed: done });
-    }
-    return days;
-  }, [habits]);
-
   const totalDue = weekly.reduce((s, d) => s + d.total, 0);
   const totalDone = weekly.reduce((s, d) => s + d.completed, 0);
   const rate = totalDue ? Math.round((totalDone / totalDue) * 100) : 0;
@@ -75,13 +54,12 @@ function StatsPage() {
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* <MiniStat
+        <MiniStat
           label="Completion rate"
           value={`${rate}%`}
           color="bg-pink/60"
           icon={<Percent className="h-4 w-4" />}
-        />*/}
-
+        />
         <MiniStat
           label="Current streak"
           value={`${streak}d`}
@@ -134,41 +112,8 @@ function StatsPage() {
       </section>
 
       <section className="mt-6 rounded-3xl bg-card p-5 shadow-soft">
-        <h2 className="mb-4 font-display text-xl font-bold">Last 30 days</h2>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={monthly}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis
-                dataKey="label"
-                stroke="var(--color-muted-foreground)"
-                tickLine={false}
-                axisLine={false}
-                interval={4}
-              />
-              <YAxis
-                stroke="var(--color-muted-foreground)"
-                tickLine={false}
-                axisLine={false}
-                allowDecimals={false}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "var(--color-card)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "16px",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="completed"
-                stroke="var(--color-secondary-foreground)"
-                strokeWidth={3}
-                dot={{ fill: "var(--color-primary)", r: 3 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <h2 className="mb-4 font-display text-xl font-bold">Activity</h2>
+        <ActivityHeatmap habits={habits} />
       </section>
     </AppShell>
   );
@@ -196,4 +141,95 @@ function MiniStat({
       <div className="mt-2 font-display text-3xl font-bold">{value}</div>
     </div>
   );
+}
+
+/* ---------- GitHub-style activity heatmap ---------- */
+
+const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+
+function ActivityHeatmap({ habits }: { habits: Habit[] }) {
+  const cursor = useMemo(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  }, []);
+
+  const days = useMemo(() => buildMonthCells(cursor), [cursor]);
+
+  const completedByDay = useMemo(() => {
+    const map = new Map<string, number>();
+    habits.forEach((h) => {
+      h.completions.forEach((iso) => {
+        map.set(iso, (map.get(iso) ?? 0) + 1);
+      });
+    });
+    return map;
+  }, [habits]);
+
+  const monthLabel = cursor.toLocaleDateString(undefined, { month: "long" });
+  const yearLabel = cursor.getFullYear();
+  const todayISO = dateKey(new Date());
+
+  return (
+    <div className="rounded-2xl bg-muted/60 p-4 sm:p-5">
+      <div className="mb-3">
+        <div className="font-display text-lg font-bold leading-tight">{monthLabel}</div>
+        <div className="text-sm text-muted-foreground">{yearLabel}</div>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1.5 text-center text-[11px] font-semibold uppercase text-muted-foreground">
+        {WEEKDAY_LABELS.map((d, i) => (
+          <div key={i}>{d}</div>
+        ))}
+      </div>
+
+      <div className="mt-1.5 grid grid-cols-7 gap-1.5">
+        {days.map((d, i) => {
+          if (!d) return <div key={i} className="aspect-square" />;
+          const iso = dateKey(d);
+          const inMonth = d.getMonth() === cursor.getMonth();
+          const count = completedByDay.get(iso) ?? 0;
+          const intensity = Math.min(count, 4);
+          const isToday = iso === todayISO;
+          return (
+            <div
+              key={iso}
+              title={`${iso} — ${count} habit${count === 1 ? "" : "s"} completed`}
+              className={cn(
+                "aspect-square rounded-[4px] transition-colors",
+                !inMonth && "opacity-30",
+                isToday && "ring-2 ring-primary ring-offset-1 ring-offset-muted",
+                intensity === 0 && "bg-border/70",
+                intensity === 1 && "bg-sage/40",
+                intensity === 2 && "bg-sage/65",
+                intensity === 3 && "bg-sage",
+                intensity >= 4 && "bg-sage shadow-soft",
+              )}
+            />
+          );
+        })}
+      </div>
+
+      <div className="mt-4 flex items-center justify-end gap-1.5 text-xs text-muted-foreground">
+        <span>Less</span>
+        <span className="h-3 w-3 rounded-[3px] bg-border/70" />
+        <span className="h-3 w-3 rounded-[3px] bg-sage/40" />
+        <span className="h-3 w-3 rounded-[3px] bg-sage/65" />
+        <span className="h-3 w-3 rounded-[3px] bg-sage" />
+        <span>More</span>
+      </div>
+    </div>
+  );
+}
+
+function buildMonthCells(cursor: Date): (Date | null)[] {
+  const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const start = new Date(first);
+  start.setDate(first.getDate() - first.getDay());
+  const cells: (Date | null)[] = [];
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    cells.push(d);
+  }
+  return cells;
 }
