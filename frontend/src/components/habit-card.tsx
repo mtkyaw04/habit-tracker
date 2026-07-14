@@ -23,11 +23,13 @@ export function HabitCard({
   onToggle,
   onEdit,
   onDelete,
+  viewMode,
 }: {
   habit: Habit;
   onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  viewMode: "today" | "all";
 }) {
   const done = habit.completions.includes(todayKey());
   const streak = computeStreak(habit);

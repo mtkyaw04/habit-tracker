@@ -14,6 +14,7 @@ export type Habit = {
   createdAt: string;
   /** ISO date strings (YYYY-MM-DD) marked complete */
   completions: string[];
+  weekDays?: number[]; // Added weekDays property
 };
 
 export type Profile = ApiProfile;
@@ -276,3 +277,10 @@ export function overallLongestStreak(habits: Habit[]): number {
   }
   return best;
 }
+
+export function isHabitCreatedBefore(habit: Habit, date: Date): boolean {
+  const habitCreatedAt = new Date(habit.createdAt);
+  // Compare dates by converting them to YYYY-MM-DD strings to ignore time
+  return dateKey(habitCreatedAt) <= dateKey(date);
+}
+// Added a comment to force Docker cache invalidation
