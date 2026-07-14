@@ -80,41 +80,46 @@ function StatsPage() {
         />
       </section>
 
-      <section className="mt-8 rounded-3xl bg-card p-5 shadow-soft">
-        <h2 className="mb-4 font-display text-xl font-bold">This week</h2>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weekly} barCategoryGap="30%">
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis
-                dataKey="label"
-                stroke="var(--color-muted-foreground)"
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="var(--color-muted-foreground)"
-                tickLine={false}
-                axisLine={false}
-                allowDecimals={false}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "var(--color-card)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "16px",
-                }}
-              />
-              <Bar dataKey="completed" fill="var(--color-primary)" radius={[12, 12, 4, 4]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </section>
+      <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <section className="rounded-3xl bg-card p-5 shadow-soft lg:col-span-2">
+          <h2 className="mb-4 font-display text-xl font-bold">This week</h2>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weekly} barCategoryGap="30%">
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--color-border)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  stroke="var(--color-muted-foreground)"
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="var(--color-muted-foreground)"
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--color-card)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "16px",
+                  }}
+                />
+                <Bar dataKey="completed" fill="var(--color-primary)" radius={[12, 12, 4, 4]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
 
-      <section className="mt-6 rounded-3xl bg-card p-5 shadow-soft">
-        <h2 className="mb-4 font-display text-xl font-bold">Activity</h2>
-        <ActivityHeatmap habits={habits} />
-      </section>
+        <section className="rounded-3xl bg-card p-5 shadow-soft">
+          <ActivityHeatmap habits={habits} />
+        </section>
+      </div>
     </AppShell>
   );
 }
@@ -170,7 +175,7 @@ function ActivityHeatmap({ habits }: { habits: Habit[] }) {
   const todayISO = dateKey(new Date());
 
   return (
-    <div className="rounded-2xl bg-muted/60 p-4 sm:p-5">
+    <div className="rounded-2xl sm:p-5">
       <div className="mb-3">
         <div className="font-display text-lg font-bold leading-tight">{monthLabel}</div>
         <div className="text-sm text-muted-foreground">{yearLabel}</div>
