@@ -205,11 +205,12 @@ export function HabitFormModal({
             <div className="grid gap-2">
               <Label>Category</Label>
 
-              <Select value={category} onValueChange={setCategory} disabled={isRecommended}> {/* Disable if it's a recommended habit */}
+              <Select value={category} onValueChange={setCategory} disabled={isRecommended}>
+                {" "}
+                {/* Disable if it's a recommended habit */}
                 <SelectTrigger className="rounded-2xl">
                   <SelectValue />
                 </SelectTrigger>
-
                 <SelectContent>
                   {CATEGORIES.map((c) => (
                     <SelectItem key={c} value={c}>

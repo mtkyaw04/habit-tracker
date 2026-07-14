@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, Filter } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
@@ -19,8 +19,13 @@ function HabitsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Habit | null>(null);
   const [filter, setFilter] = useState<string>("All");
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const filtered = filter === "All" ? habits : habits.filter((h) => h.category === filter);
+
+  const handleAddHabitClick = () => {
+    navigate({ to: "/habit-library" }); // Redirect to habit-library page
+  };
 
   return (
     <AppShell>
@@ -32,10 +37,7 @@ function HabitsPage() {
           </p>
         </div>
         <Button
-          onClick={() => {
-            setEditing(null);
-            setOpen(true);
-          }}
+          onClick={handleAddHabitClick} // Use the new handler
           className="hidden rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 md:inline-flex"
         >
           <Plus className="mr-1 h-4 w-4" /> Add habit
@@ -67,10 +69,7 @@ function HabitsPage() {
           <h3 className="font-display text-lg font-semibold">No habits here yet</h3>
           <p className="mt-1 text-sm text-muted-foreground">Tap the button below to start.</p>
           <Button
-            onClick={() => {
-              setEditing(null);
-              setOpen(true);
-            }}
+            onClick={handleAddHabitClick} // Use the new handler
             className="mt-4 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="mr-1 h-4 w-4" /> Add your first habit
@@ -95,6 +94,7 @@ function HabitsPage() {
                 deleteHabit(h.id);
                 toast(`Removed ${h.name}`);
               }}
+              viewMode="all"
             />
           ))}
         </div>
@@ -102,10 +102,7 @@ function HabitsPage() {
 
       {/* Floating add button (mobile) */}
       <button
-        onClick={() => {
-          setEditing(null);
-          setOpen(true);
-        }}
+        onClick={handleAddHabitClick} // Use the new handler
         className="fixed bottom-24 right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-cozy transition-transform hover:scale-105 md:hidden"
         aria-label="Add habit"
       >
