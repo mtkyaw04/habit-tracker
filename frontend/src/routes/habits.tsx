@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, ChevronDown } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { HabitCard } from "@/components/habit-card";
 import { HabitFormModal, type HabitFormValue } from "@/components/habit-form-modal";
@@ -49,21 +49,19 @@ function HabitsPage() {
     <AppShell>
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold sm:text-4xl">Your habits</h1>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">My habits</h1>
           <p className="mt-1 text-muted-foreground">
-            {habits.length} habit{habits.length === 1 ? "" : "s"} in your garden 🌷
+            {habits.length} habit{habits.length === 1 ? "" : "s"} in my garden 🌷
           </p>
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="rounded-2xl shadow-soft">
-                <Filter className="mr-1 h-4 w-4" /> {selectedDay}
+              <Button variant="outline" className="rounded-2xl shadow-soft bg-lavender">
+                <ChevronDown className="mr-0.5 h-3 w-3" /> {selectedDay}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
-              <DropdownMenuLabel>Filter by Day</DropdownMenuLabel>
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setSelectedDay("All Days")}>
                 All Days
               </DropdownMenuItem>
