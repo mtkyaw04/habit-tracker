@@ -7,7 +7,6 @@ import {
   Droplet,
   Carrot,
   Bed,
-  Dumbbell,
   StretchHorizontal,
   Footprints,
   Flower,
@@ -76,7 +75,7 @@ const RECOMMENDED_HABITS_DATA: {
       category: "Fitness",
       frequency: "daily",
       color: "sage",
-      icon: "Dumbbell", // Changed from Run
+      icon: "Bed", // Changed from Run
     },
     {
       name: "Stretch for 10 minutes",
@@ -129,7 +128,7 @@ const RECOMMENDED_HABITS_DATA: {
       description: "Expand your knowledge every day",
       category: "Learning",
       frequency: "daily",
-      color: "cream",
+      color: "sky",
       icon: "Book",
     },
     {
@@ -137,7 +136,7 @@ const RECOMMENDED_HABITS_DATA: {
       description: "Spend time improving an ability",
       category: "Learning",
       frequency: "daily",
-      color: "cream",
+      color: "sky",
       icon: "GraduationCap",
     },
     {
@@ -145,7 +144,7 @@ const RECOMMENDED_HABITS_DATA: {
       description: "Discover something new",
       category: "Learning",
       frequency: "daily",
-      color: "cream",
+      color: "sky",
       icon: "MonitorPlay",
     },
   ],
@@ -156,7 +155,7 @@ const RECOMMENDED_HABITS_DATA: {
       description: "Organize tasks for better focus",
       category: "Productivity",
       frequency: "daily",
-      color: "sky",
+      color: "cream",
       icon: "CalendarCheck",
     },
     {
@@ -164,7 +163,7 @@ const RECOMMENDED_HABITS_DATA: {
       description: "Finish your most important task first",
       category: "Productivity",
       frequency: "daily",
-      color: "sky",
+      color: "cream",
       icon: "Target",
     },
     {
@@ -172,7 +171,7 @@ const RECOMMENDED_HABITS_DATA: {
       description: "Maintain a tidy digital workspace",
       category: "Productivity",
       frequency: "daily",
-      color: "sky",
+      color: "cream",
       icon: "Inbox",
     },
   ],
@@ -246,7 +245,6 @@ const ICON_COMPONENTS: Record<string, React.ElementType> = {
   Carrot,
   Bed, // Changed from Run
   StretchHorizontal,
-  Dumbbell,
   Footprints,
   Flower, // Changed from Lotus
   Feather,
@@ -302,7 +300,7 @@ function HabitLibraryPage() {
 
   return (
     <AppShell>
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-6">
           <Button
             variant="ghost"
@@ -346,7 +344,7 @@ function HabitLibraryPage() {
                           <IconComponent className="h-6 w-6 text-foreground" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-display text-base font-bold text-foreground mr-4">
+                          <p className="font-display text-base font-bold text-foreground mr-1.5">
                             {habit.name}
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">{habit.description}</p>
