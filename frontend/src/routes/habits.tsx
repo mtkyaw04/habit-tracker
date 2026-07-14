@@ -32,10 +32,7 @@ function HabitsPage() {
           </p>
         </div>
         <Button
-          onClick={() => {
-            setEditing(null);
-            setOpen(true);
-          }}
+          onClick={() => { setEditing(null); setOpen(true); }}
           className="hidden rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 md:inline-flex"
         >
           <Plus className="mr-1 h-4 w-4" /> Add habit
@@ -67,10 +64,7 @@ function HabitsPage() {
           <h3 className="font-display text-lg font-semibold">No habits here yet</h3>
           <p className="mt-1 text-sm text-muted-foreground">Tap the button below to start.</p>
           <Button
-            onClick={() => {
-              setEditing(null);
-              setOpen(true);
-            }}
+            onClick={() => { setEditing(null); setOpen(true); }}
             className="mt-4 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="mr-1 h-4 w-4" /> Add your first habit
@@ -87,14 +81,8 @@ function HabitsPage() {
                 const nowDone = !h.completions.includes(todayKey());
                 toast.success(nowDone ? `Nice work — ${h.name} ✨` : `Unmarked ${h.name}`);
               }}
-              onEdit={() => {
-                setEditing(h);
-                setOpen(true);
-              }}
-              onDelete={() => {
-                deleteHabit(h.id);
-                toast(`Removed ${h.name}`);
-              }}
+              onEdit={() => { setEditing(h); setOpen(true); }}
+              onDelete={() => { deleteHabit(h.id); toast(`Removed ${h.name}`); }}
             />
           ))}
         </div>
@@ -102,10 +90,7 @@ function HabitsPage() {
 
       {/* Floating add button (mobile) */}
       <button
-        onClick={() => {
-          setEditing(null);
-          setOpen(true);
-        }}
+        onClick={() => { setEditing(null); setOpen(true); }}
         className="fixed bottom-24 right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-cozy transition-transform hover:scale-105 md:hidden"
         aria-label="Add habit"
       >
@@ -114,10 +99,7 @@ function HabitsPage() {
 
       <HabitFormModal
         open={open}
-        onOpenChange={(v) => {
-          setOpen(v);
-          if (!v) setEditing(null);
-        }}
+        onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}
         initial={editing}
         onSubmit={(v: HabitFormValue) => {
           if (editing) {
