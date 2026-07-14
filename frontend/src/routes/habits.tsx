@@ -8,20 +8,38 @@ import { useHabits, type Habit, CATEGORIES, todayKey } from "@/lib/habits-store"
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/habits")({
   head: () => ({ meta: [{ title: "Habits — Bloom" }] }),
   component: HabitsPage,
 });
 
+const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
 function HabitsPage() {
   const { habits, addHabit, updateHabit, deleteHabit, toggleComplete } = useHabits();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Habit | null>(null);
   const [filter, setFilter] = useState<string>("All");
+  const [selectedDay, setSelectedDay] = useState<string>("All Days"); // New state for day filter
   const navigate = useNavigate(); // Initialize useNavigate
 
-  const filtered = filter === "All" ? habits : habits.filter((h) => h.category === filter);
+  const filtered = habits.filter((h) => {
+    const matchesCategory = filter === "All" || h.category === filter;
+    const matchesDay =
+      selectedDay === "All Days" ||
+      h.frequency === "daily" || // Always show daily habits
+      (h.frequency === "weekly" && h.weekDays?.includes(DAYS_OF_WEEK.indexOf(selectedDay)));
+    return matchesCategory && matchesDay;
+  });
 
   const handleAddHabitClick = () => {
     navigate({ to: "/habit-library" }); // Redirect to habit-library page
@@ -36,12 +54,33 @@ function HabitsPage() {
             {habits.length} habit{habits.length === 1 ? "" : "s"} in your garden 🌷
           </p>
         </div>
-        <Button
-          onClick={handleAddHabitClick} // Use the new handler
-          className="hidden rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 md:inline-flex"
-        >
-          <Plus className="mr-1 h-4 w-4" /> Add habit
-        </Button>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-2xl shadow-soft">
+                <Filter className="mr-1 h-4 w-4" /> {selectedDay}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>Filter by Day</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setSelectedDay("All Days")}>
+                All Days
+              </DropdownMenuItem>
+              {DAYS_OF_WEEK.map((day) => (
+                <DropdownMenuItem key={day} onClick={() => setSelectedDay(day)}>
+                  {day}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            onClick={handleAddHabitClick} // Use the new handler
+            className="hidden rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 md:inline-flex"
+          >
+            <Plus className="mr-1 h-4 w-4" /> Add habit
+          </Button>
+        </div>
       </div>
 
       <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2">
