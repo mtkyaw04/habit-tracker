@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api, getToken, setToken, type ApiProfile } from "@/lib/api";
-import { v4 as uuidv4 } from "uuid"; // Import v4 from uuid
 
-export type Frequency = "daily" | "weekly";
+export type Frequency = "daily" | "weekly" | "custom";
 
 export type Habit = {
   id: string;
@@ -10,11 +9,12 @@ export type Habit = {
   description?: string;
   category: string;
   frequency: Frequency;
-  weekDays?: number[];
+  reminder?: string;
   color: "pink" | "lavender" | "sage" | "sky" | "cream";
   createdAt: string;
   /** ISO date strings (YYYY-MM-DD) marked complete */
   completions: string[];
+  weekDays?: number[]; // Added weekDays property
 };
 
 export type Profile = ApiProfile;
@@ -30,20 +30,8 @@ export const CATEGORIES = [
 ];
 const COLORS: Habit["color"][] = ["pink", "lavender", "sage", "sky", "cream"];
 
-export const dateKey = (d: Date) => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-};
-
-export const todayKey = () => dateKey(new Date());
-
-export function isHabitCreatedBefore(habit: Habit, date: Date): boolean {
-  const createdDate = dateKey(new Date(habit.createdAt));
-  return createdDate <= dateKey(date);
-}
+export const todayKey = () => new Date().toISOString().slice(0, 10);
+export const dateKey = (d: Date) => d.toISOString().slice(0, 10);
 
 const emptyProfile: Profile = {
   username: "",
@@ -73,9 +61,14 @@ const HabitsContext = createContext<Ctx | null>(null);
 export function HabitsProvider({ children }: { children: ReactNode }) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [profile, setProfile] = useState<Profile>(emptyProfile);
-  const [isLoading, setIsLoading] = useState(() => !!getToken());
+  const [isLoading, setIsLoading] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
-  const [token, setTokenState] = useState<string | null>(() => getToken());
+  const [token, setTokenState] = useState<string | null>(null);
+
+  // Sync token state with localStorage on mount
+  useEffect(() => {
+    setTokenState(getToken());
+  }, []);
 
   const isAuthenticated = !!token;
 
@@ -86,12 +79,8 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const MIN_LOADING_TIME = 400; // ms
-
     let cancelled = false;
     setIsLoading(true);
-
-    const startTime = Date.now();
 
     Promise.all([api.listHabits<Habit>(), api.getProfile()])
       .then(([habitsRes, profileRes]) => {
@@ -106,16 +95,7 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
           setTokenState(null);
         }
       })
-      .finally(() => {
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, MIN_LOADING_TIME - elapsed);
-
-        setTimeout(() => {
-          if (!cancelled) {
-            setIsLoading(false);
-          }
-        }, remaining);
-      });
+      .finally(() => !cancelled && setIsLoading(false));
 
     return () => {
       cancelled = true;
@@ -144,7 +124,7 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
       },
 
       addHabit: (h) => {
-        const tempId = uuidv4(); // Replaced crypto.randomUUID() with uuidv4()
+        const tempId = crypto.randomUUID();
         const optimistic: Habit = {
           id: tempId,
           createdAt: new Date().toISOString(),
@@ -207,6 +187,7 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
           .then((updated) => setProfile(updated))
           .catch((err) => console.error("Failed to update profile", err));
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
     [habits, profile, isAuthenticated, isLoading, token],
   );
@@ -224,12 +205,11 @@ export function useHabits() {
 
 export function isDueToday(h: Habit, date = new Date()): boolean {
   if (h.frequency === "daily") return true;
-
   if (h.frequency === "weekly") {
-    if (!h.weekDays || h.weekDays.length === 0) return false;
-    return h.weekDays.includes(date.getDay());
+    // due on same weekday as createdAt
+    const created = new Date(h.createdAt);
+    return created.getDay() === date.getDay();
   }
-
   return true;
 }
 
@@ -297,3 +277,10 @@ export function overallLongestStreak(habits: Habit[]): number {
   }
   return best;
 }
+
+export function isHabitCreatedBefore(habit: Habit, date: Date): boolean {
+  const habitCreatedAt = new Date(habit.createdAt);
+  // Compare dates by converting them to YYYY-MM-DD strings to ignore time
+  return dateKey(habitCreatedAt) <= dateKey(date);
+}
+// Added a comment to force Docker cache invalidation

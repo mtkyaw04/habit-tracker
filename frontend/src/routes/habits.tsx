@@ -12,8 +12,9 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/habits")({
@@ -21,168 +22,124 @@ export const Route = createFileRoute("/habits")({
   component: HabitsPage,
 });
 
-function HabitsPage() {
-  const { habits, updateHabit, deleteHabit, toggleComplete } = useHabits();
-  const navigate = useNavigate();
+const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+function HabitsPage() {
+  const { habits, addHabit, updateHabit, deleteHabit, toggleComplete } = useHabits();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Habit | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState("All");
-  const [dayFilter, setDayFilter] = useState("All");
-
-  const WEEK_MAP = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const [filter, setFilter] = useState<string>("All");
+  const [selectedDay, setSelectedDay] = useState<string>("All Days"); // New state for day filter
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const filtered = habits.filter((h) => {
-    const matchesCategory = categoryFilter === "All" || h.category === categoryFilter;
-    const isDailyHabit = !h.weekDays || h.weekDays.length === 0;
-
+    const matchesCategory = filter === "All" || h.category === filter;
     const matchesDay =
-      dayFilter === "All" ||
-      (isDailyHabit && dayFilter !== "All") ||
-      (h.weekDays && h.weekDays.includes(WEEK_MAP.indexOf(dayFilter)));
-
+      selectedDay === "All Days" ||
+      h.frequency === "daily" || // Always show daily habits
+      (h.frequency === "weekly" && h.weekDays?.includes(DAYS_OF_WEEK.indexOf(selectedDay)));
     return matchesCategory && matchesDay;
   });
 
-  function formatWeekDays(days?: number[]) {
-    if (!days?.length) return null;
-    return days.map((d) => WEEK_MAP[d]).join(", ");
-  }
-
   const handleAddHabitClick = () => {
-    navigate({ to: "/habit-library" });
+    navigate({ to: "/habit-library" }); // Redirect to habit-library page
   };
 
   return (
     <AppShell>
-      {/* Main content area */}
-      <div>
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl font-bold sm:text-4xl">My habits</h1>
-            <p className="mt-1 text-muted-foreground">
-              {habits.length} habit{habits.length === 1 ? "" : "s"} in my garden 🌷
-            </p>
-          </div>
-          {/* Buttons for large screens */}
-          <div className="flex gap-2 md:inline-flex hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" className="whitespace-nowrap rounded-full">
-                  {dayFilter === "All" ? "Filter by day" : dayFilter}
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                <DropdownMenuRadioGroup value={dayFilter} onValueChange={setDayFilter}>
-                  <DropdownMenuRadioItem value="All">All Days</DropdownMenuRadioItem>
-                  {WEEK_MAP.map((day) => (
-                    <DropdownMenuRadioItem key={day} value={day}>
-                      {day}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              onClick={handleAddHabitClick}
-              className="rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
-            >
-              <Plus className="mr-1 h-4 w-4" />
-              Add habit
-            </Button>
-          </div>
-          {/* Filter by day dropdown for small screens - moved to header */}
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">My habits</h1>
+          <p className="mt-1 text-muted-foreground">
+            {habits.length} habit{habits.length === 1 ? "" : "s"} in my garden 🌷
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="secondary"
-                className="whitespace-nowrap rounded-full md:hidden ml-auto self-start"
-              >
-                {dayFilter === "All" ? "Filter by day" : dayFilter}
-                <ChevronDown className="ml-2 h-4 w-4" />
+              <Button variant="outline" className="rounded-2xl shadow-soft bg-lavender">
+                <ChevronDown className="mr-0.5 h-3 w-3" /> {selectedDay}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
-              <DropdownMenuRadioGroup value={dayFilter} onValueChange={setDayFilter}>
-                <DropdownMenuRadioItem value="All">All Days</DropdownMenuRadioItem>
-                {WEEK_MAP.map((day) => (
-                  <DropdownMenuRadioItem key={day} value={day}>
-                    {day}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
+              <DropdownMenuItem onClick={() => setSelectedDay("All Days")}>
+                All Days
+              </DropdownMenuItem>
+              {DAYS_OF_WEEK.map((day) => (
+                <DropdownMenuItem key={day} onClick={() => setSelectedDay(day)}>
+                  {day}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button
+            onClick={handleAddHabitClick} // Use the new handler
+            className="hidden rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90 md:inline-flex"
+          >
+            <Plus className="mr-1 h-4 w-4" /> Add habit
+          </Button>
         </div>
+      </div>
 
-        <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2">
-          <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <Filter className="h-3.5 w-3.5" />
-            Filter
-          </span>
+      <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <Filter className="h-3.5 w-3.5" /> Filter
+        </span>
+        {["All", ...CATEGORIES].map((c) => (
+          <button
+            key={c}
+            onClick={() => setFilter(c)}
+            className={cn(
+              "whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors",
+              filter === c
+                ? "border-transparent bg-primary/70 text-primary-foreground shadow-soft"
+                : "border-border bg-card/60 text-muted-foreground hover:bg-accent",
+            )}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
 
-          {["All", ...CATEGORIES].map((c) => (
-            <button
-              key={c}
-              onClick={() => setCategoryFilter(c)}
-              className={cn(
-                "whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors",
-                categoryFilter === c
-                  ? "border-transparent bg-primary/70 text-primary-foreground shadow-soft"
-                  : "border-border bg-card/60 text-muted-foreground hover:bg-accent",
-              )}
-            >
-              {c}
-            </button>
+      {filtered.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-border bg-card/60 p-10 text-center shadow-soft">
+          <h3 className="font-display text-lg font-semibold">No habits here yet</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Tap the button below to start.</p>
+          <Button
+            onClick={handleAddHabitClick} // Use the new handler
+            className="mt-4 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="mr-1 h-4 w-4" /> Add your first habit
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {filtered.map((h) => (
+            <HabitCard
+              key={h.id}
+              habit={h}
+              onToggle={() => {
+                toggleComplete(h.id);
+                const nowDone = !h.completions.includes(todayKey());
+                toast.success(nowDone ? `Nice work — ${h.name} ✨` : `Unmarked ${h.name}`);
+              }}
+              onEdit={() => {
+                setEditing(h);
+                setOpen(true);
+              }}
+              onDelete={() => {
+                deleteHabit(h.id);
+                toast(`Removed ${h.name}`);
+              }}
+              viewMode="all"
+            />
           ))}
         </div>
-
-        {filtered.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-border bg-card/60 p-10 text-center shadow-soft">
-            <h3 className="font-display text-lg font-semibold">No habits here yet</h3>
-
-            <p className="mt-1 text-sm text-muted-foreground">Tap the button below to start.</p>
-
-            <Button
-              onClick={handleAddHabitClick}
-              className="mt-4 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Plus className="mr-1 h-4 w-4" />
-              Add your first habit
-            </Button>
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {filtered.map((h) => (
-              <HabitCard
-                key={h.id}
-                habit={h}
-                onToggle={() => {
-                  toggleComplete(h.id);
-
-                  const nowDone = !h.completions.includes(todayKey());
-
-                  toast.success(nowDone ? `Nice work — ${h.name} ✨` : `Unmarked ${h.name}`);
-                }}
-                onEdit={() => {
-                  setEditing(h);
-                  setOpen(true);
-                }}
-                onDelete={() => {
-                  deleteHabit(h.id);
-                  toast(`Removed ${h.name}`);
-                }}
-                viewMode="all"
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Floating add button (mobile) */}
       <button
-        onClick={handleAddHabitClick}
+        onClick={handleAddHabitClick} // Use the new handler
         className="fixed bottom-24 right-5 z-30 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-cozy transition-transform hover:scale-105 md:hidden"
         aria-label="Add habit"
       >
@@ -193,18 +150,17 @@ function HabitsPage() {
         open={open}
         onOpenChange={(v) => {
           setOpen(v);
-          if (!v) {
-            setEditing(null);
-          }
+          if (!v) setEditing(null);
         }}
         initial={editing}
         onSubmit={(v: HabitFormValue) => {
-          // This modal is now only for editing existing habits in habits.tsx
           if (editing) {
             updateHabit(editing.id, v);
             toast.success("Habit updated");
+          } else {
+            addHabit(v);
+            toast.success("Habit added ✨");
           }
-          // No else case for adding new habits here, as that's handled by habit-library.tsx
         }}
       />
     </AppShell>

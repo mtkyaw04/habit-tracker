@@ -61,6 +61,7 @@ function CalendarPage() {
       return true;
     }
 
+    // Check if weekDays exists and includes the selectedDay
     return habit.weekDays?.includes(selectedDay);
   });
 

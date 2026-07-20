@@ -17,5 +17,9 @@ export default defineConfig({
   nitro: {
     preset: "node-server",
   },
+  vite: {
+    resolve: {
+      tsconfigPaths: true,
+    },
+  },
 });
-
