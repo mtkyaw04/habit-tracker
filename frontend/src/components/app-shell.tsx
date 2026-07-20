@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Sidebar (desktop) */}
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-border/60 bg-sidebar/80 backdrop-blur-md px-5 py-6 md:flex">
         <Link to="/" className="mb-8 flex items-center gap-2">
-          <img src="/logo.png" alt="Bloom logo" className="h-10 w-10 object-contain" />
+          <img src="/bloomLogo.png" alt="Bloom logo" className="h-10 w-10 object-contain" />
 
           <div>
             <div className="font-display text-lg font-bold leading-none">Bloom</div>
@@ -107,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Top navbar (mobile) */}
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border/60 bg-background/70 px-5 py-4 backdrop-blur-md md:hidden">
           <Link to="/" className="flex items-center gap-2">
-            <img src={"/logo.png"} alt="Bloom logo" className="h-10 w-10 object-contain" />
+            <img src={"/bloomLogo.png"} alt="Bloom logo" className="h-10 w-10 object-contain" />
             <span className="font-display text-lg font-bold">Bloom</span>
           </Link>
           <div className="flex items-center gap-2">
