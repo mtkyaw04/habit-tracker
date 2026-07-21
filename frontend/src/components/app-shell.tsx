@@ -16,15 +16,16 @@ const NAV = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { profile, isAuthenticated, isLoading, logout } = useHabits(); // Destructure isLoading
+  const { profile, isAuthenticated, isLoading, isInitializing, authReady, logout } = useHabits(); // Destructure isLoading
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Only redirect if not authenticated AND not currently loading authentication status
-    if (!isAuthenticated && !isLoading) {
-      navigate({ to: "/login" });
-    }
-  }, [isAuthenticated, isLoading, navigate]); // Add isLoading to dependency array
+  if (!authReady) return;
+
+  if (!isAuthenticated) {
+    navigate({ to: "/login", replace: true });
+  }
+  }, [authReady, isAuthenticated, navigate]);
 
   const handleLogout = () => {
     logout();
@@ -32,16 +33,21 @@ export function AppShell({ children }: { children: ReactNode }) {
     navigate({ to: "/login" });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="mb-4 h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isInitializing || isLoading) {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background">
+      <img
+        src="/bloomLogo.png"
+        alt="Bloom"
+        className="h-20 w-20 animate-pulse"
+      />
+      <h1 className="mt-4 font-display text-3xl font-bold">Bloom</h1>
+      <p className="mt-2 text-muted-foreground">
+        Growing your garden...
+      </p>
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen">

@@ -44,6 +44,8 @@ type Ctx = {
   profile: Profile;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitializing: boolean;
+  authReady: boolean;
   setAuth: (token: string, profile: Profile) => void;
   addHabit: (
     h: Omit<Habit, "id" | "createdAt" | "completions" | "color"> & { color?: Habit["color"] },
@@ -57,50 +59,65 @@ type Ctx = {
 };
 
 const HabitsContext = createContext<Ctx | null>(null);
+  
 
 export function HabitsProvider({ children }: { children: ReactNode }) {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [profile, setProfile] = useState<Profile>(emptyProfile);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [refreshTick, setRefreshTick] = useState(0);
-  const [token, setTokenState] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [token, setTokenState] = useState<string | null>(() => getToken());
 
-  // Sync token state with localStorage on mount
   useEffect(() => {
-    setTokenState(getToken());
+    setAuthReady(true);
   }, []);
 
   const isAuthenticated = !!token;
 
   useEffect(() => {
-    if (typeof window === "undefined" || !token) {
-      setHabits([]);
-      setProfile(emptyProfile);
-      return;
-    }
+  if (!token) {
+    setHabits([]);
+    setProfile(emptyProfile);
+    setIsInitializing(false);
+    return;
+  }
 
-    let cancelled = false;
-    setIsLoading(true);
+  let cancelled = false;
+  const start = Date.now();
 
-    Promise.all([api.listHabits<Habit>(), api.getProfile()])
-      .then(([habitsRes, profileRes]) => {
-        if (cancelled) return;
-        setHabits(habitsRes);
-        setProfile(profileRes);
-      })
-      .catch((err) => {
-        console.error("Failed to load habit data", err);
-        if (err.status === 401) {
-          setToken(null);
-          setTokenState(null);
+  setIsLoading(true);
+
+  Promise.all([api.listHabits<Habit>(), api.getProfile()])
+    .then(([habitsRes, profileRes]) => {
+      if (cancelled) return;
+      setHabits(habitsRes);
+      setProfile(profileRes);
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.status === 401) {
+        setToken(null);
+        setTokenState(null);
+      }
+    })
+    .finally(() => {
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, 1000 - elapsed);
+
+      setTimeout(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+          setIsInitializing(false);
         }
-      })
-      .finally(() => !cancelled && setIsLoading(false));
+      }, remaining);
+    });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [refreshTick, token]);
+  return () => {
+    cancelled = true;
+  };
+}, [refreshTick, token]);
 
   const value = useMemo<Ctx>(
     () => ({
@@ -108,6 +125,8 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
       profile,
       isAuthenticated,
       isLoading,
+      isInitializing,
+      authReady,
       setAuth: (newToken, newProfile) => {
         setToken(newToken); // Update localStorage
         setTokenState(newToken); // Update state to trigger useEffect
