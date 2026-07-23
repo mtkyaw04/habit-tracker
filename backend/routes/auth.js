@@ -81,9 +81,46 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    validatePassword  } catch (err) {
+    const { email, password } = req.body || {};
+
+    if (!email || !password) {
+      return res.status(400).json({
+        error: "Email and password are required",
+      });
+    }
+
+    const [rows] = await pool.query(
+        "SELECT * FROM users WHERE email = ?",
+        [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({
+        error: "Invalid email or password",
+      });
+    }
+
+    const user = rows[0];
+
+    const ok = await bcrypt.compare(password, user.password_hash);
+
+    if (!ok) {
+      return res.status(401).json({
+        error: "Invalid email or password",
+      });
+    }
+
+    const token = signToken(user.id);
+
+    res.json({
+      token,
+      profile: toProfile(user),
+    });
+  } catch (err) {
     console.error("login error", err);
-    res.status(500).json({ error: "Failed to log in" });
+    res.status(500).json({
+      error: "Failed to log in",
+    });
   }
 });
 
