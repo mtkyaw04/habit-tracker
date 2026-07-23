@@ -13,15 +13,45 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+function isValidEmail(email: string): boolean {
+  // Basic email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { setAuth } = useHabits();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return toast.error("Fill in both fields");
+
+    setEmailError(null);
+    setPasswordError(null);
+
+    let hasError = false;
+
+    if (!email) {
+      setEmailError("Email is required");
+      hasError = true;
+    } else if (!isValidEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      hasError = true;
+    }
+
+    if (!password) {
+      setPasswordError("Password is required");
+      hasError = true;
+    }
+
+    if (hasError) {
+      return;
+    }
+
     try {
       const { token, profile } = await api.login(email, password);
       setAuth(token, profile);
@@ -55,10 +85,14 @@ function LoginPage() {
             id="email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError(null); // Clear error on change
+            }}
             placeholder="you@example.com"
             className="rounded-2xl"
           />
+          {emailError && <p className="text-sm text-red-500">{emailError}</p>}
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
@@ -66,10 +100,14 @@ function LoginPage() {
             id="password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordError(null); // Clear error on change
+            }}
             placeholder="••••••••"
             className="rounded-2xl"
           />
+          {passwordError && <p className="text-sm text-red-500">{passwordError}</p>}
         </div>
         <Button
           type="submit"
