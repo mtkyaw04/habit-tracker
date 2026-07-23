@@ -34,11 +34,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="mb-4 h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background">
+        <img src="/bloomLogo.png" alt="Bloom" className="h-20 w-20 animate-pulse" />
+        <h1 className="mt-4 font-display text-3xl font-bold">Bloom</h1>
+        <p className="mt-2 text-muted-foreground">Growing your garden...</p>
       </div>
     );
   }
