@@ -56,6 +56,7 @@ type Ctx = {
   profile: Profile;
   isAuthenticated: boolean;
   isLoading: boolean;
+  authReady: boolean;
   setAuth: (token: string, profile: Profile) => void;
   addHabit: (
     h: Omit<Habit, "id" | "createdAt" | "completions" | "color"> & { color?: Habit["color"] },
@@ -75,7 +76,12 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile>(emptyProfile);
   const [isLoading, setIsLoading] = useState(() => !!getToken());
   const [refreshTick, setRefreshTick] = useState(0);
+  const [authReady, setAuthReady] = useState(false);
   const [token, setTokenState] = useState<string | null>(() => getToken());
+
+  useEffect(() => {
+    setAuthReady(true);
+  }, []);
 
   const isAuthenticated = !!token;
 
@@ -128,6 +134,7 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
       profile,
       isAuthenticated,
       isLoading,
+      authReady,
       setAuth: (newToken, newProfile) => {
         setToken(newToken); // Update localStorage
         setTokenState(newToken); // Update state to trigger useEffect

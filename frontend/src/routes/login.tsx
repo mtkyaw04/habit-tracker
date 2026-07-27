@@ -136,7 +136,7 @@ export function AuthShell({
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="grid h-14 w-14 place-items-center rounded-3xl bg-primary/70 shadow-cozy">
-            <Sparkles className="h-6 w-6 text-primary-foreground" />
+            <img src="/bloomLogo.png" alt="Bloom" className="h-15 w-15" />
           </div>
           <h1 className="mt-4 font-display text-3xl font-bold">{title}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>

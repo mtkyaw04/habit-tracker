@@ -51,7 +51,7 @@ const RECOMMENDED_HABITS_DATA: {
       icon: "Droplet",
     },
     {
-      name: "Eat 5 servings of vegetables",
+      name: "Eat vegetables",
       description: "Boost your nutrient intake",
       category: "Health",
       frequency: "daily",
@@ -140,7 +140,7 @@ const RECOMMENDED_HABITS_DATA: {
       icon: "GraduationCap",
     },
     {
-      name: "Watch an educational video",
+      name: "Watch an educational content video",
       description: "Discover something new",
       category: "Learning",
       frequency: "daily",
@@ -213,7 +213,7 @@ const RECOMMENDED_HABITS_DATA: {
       icon: "MessageSquareText",
     },
     {
-      name: "Give someone a compliment",
+      name: "Give someone a compliment and hope",
       description: "Spread positivity through kind words",
       category: "Social",
       frequency: "daily",
